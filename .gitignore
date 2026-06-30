@@ -1,0 +1,12 @@
+# OS
+.DS_Store
+**/.DS_Store
+
+# Secrets / config local (NO subir: contiene el código de acceso)
+.env
+
+# Archivos comprimidos / artefactos de deploy
+*.zip
+
+# Copia vieja duplicada del sitio (el sitio real se sirve desde la raíz)
+/okko/

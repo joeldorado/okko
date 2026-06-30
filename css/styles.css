@@ -1,0 +1,113 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body, html {
+    height: 100%;
+    overflow: hidden;
+}
+
+.split-container {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ---- PANELS ---- */
+.panel {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.5s ease;
+}
+
+/* Text inside panels */
+.panel-content {
+    position: absolute;
+    z-index: 3;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.panel h1 {
+    font-size: 4rem;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+/* Images */
+.panel-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transform: scale(1);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+/* KOI TOP (white) */
+.panel-koi {
+    background: white;
+    color: black;
+}
+
+.panel-koi .panel-image {
+    background-image: url("../images/koi.jpg");
+}
+
+/* KOA BOTTOM (black) */
+.panel-koa {
+    background: black;
+    color: white;
+}
+
+.panel-koa .panel-image {
+    background-image: url("../images/koa.jpg");
+}
+
+/* ----- HOVER EFFECTS ----- */
+
+/* When hovering KOI (top panel), affect KOA (bottom panel) */
+.panel-koi:hover ~ .panel-koa .panel-image {
+    opacity: 0.5;
+    transform: scale(1.1);
+}
+
+/* When hovering KOA (bottom panel), it shows its own image */
+.panel-koa:hover .panel-image {
+    opacity: 0.7;
+    transform: scale(1.15);
+}
+
+/* When hovering KOI (top panel), it shows its own image */
+.panel-koi:hover .panel-image {
+    opacity: 0.7;
+    transform: scale(1.15);
+}
+
+/* ------ MOBILE TOUCH VERSION ------ */
+@media(max-width: 768px) {
+
+    body, html { overflow: auto; }
+
+    .panel {
+        height: 50vh;
+        flex: none;
+    }
+
+    /* Hover doesn't exist, so use touch classes */
+    .active-touch .panel-image {
+        opacity: 0.6 !important;
+        transform: scale(1.15);
+    }
+}

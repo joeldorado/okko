@@ -1,0 +1,26 @@
+slides
+https://codepen.io/nathantaylor/full/JEXgpj
+https://codepen.io/supah/full/zZaPeE
+https://codepen.io/suez/full/MWgePWm
+
+
+
+slide  cortes 
+https://tympanus.net/Tutorials/PiecesSlider/
+
+click circle animates
+https://codepen.io/erikjung/full/PjNxyb
+
+
+follows mouse pointer
+https://tympanus.net/Development/CrossroadsSlideshow/
+
+
+
+https://codepen.io/fluxus/full/rweVgp
+
+
+https://codepen.io/nathantaylor/full/PJGqdE
+https://codepen.io/bcarvalho/full/WXmwBq
+https://codepen.io/seanfree/full/LxPBZy
+https://codepen.io/bcarvalho/full/gWPvJB

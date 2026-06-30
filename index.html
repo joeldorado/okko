@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Home KOI / OKKO</title>
+
+  <!-- Base URL para que todas las rutas relativas funcionen correctamente -->
+  <base href="/okko/">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Preload primeras imágenes críticas (above the fold) -->
+  <link rel="preload" as="image" href="./images/slides/KOI/md/_MG_0582-2.webp" type="image/webp">
+  <link rel="preload" as="image" href="./images/slides/KOA/md/_MG_0490.webp"   type="image/webp">
+
+  <!-- Swiper.js -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="./styles.css">
+
+  <link rel="stylesheet" href="./proyectos.css">
+  <link rel="stylesheet" href="./contacto.css">
+  
+  <style>
+    /* Music button animation */
+    #musicHeader, #musicFooter {
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    #musicHeader i, #musicFooter i {
+      display: inline-block;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    #musicHeader.music-click i, #musicFooter.music-click i {
+      animation: musicPulse 0.6s ease;
+    }
+
+    @keyframes musicPulse {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      30% {
+        opacity: 0.3;
+        transform: scale(0.8);
+      }
+      60% {
+        opacity: 0.6;
+        transform: scale(1.1);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Desactivar tooltip nativo del navegador */
+    #musicHeader[title],
+    #musicFooter[title] {
+      position: relative;
+    }
+
+    #musicHeader[title]:hover::after,
+    #musicFooter[title]:hover::after {
+      content: '';
+    }
+
+    /* Custom tooltip para HEADER - Blanco con texto negro, abajo */
+    #musicHeader::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: -45px;
+      left: 50%;
+      transform: translateX(-30%) translateY(10px);
+      background: rgba(255, 255, 255, 0.95);
+      color: #000;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 10000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      margin-right: 25px;
+    }
+
+    #musicHeader:hover::after {
+      opacity: 1;
+      transform: translateX(-30%) translateY(0);
+    }
+
+    /* Arrow para tooltip HEADER */
+    #musicHeader::before {
+      content: '';
+      position: absolute;
+      bottom: -11px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 6px solid rgba(255, 255, 255, 0.95);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 10000;
+    }
+
+    #musicHeader:hover::before {
+      opacity: 1;
+    }
+
+    /* Custom tooltip para FOOTER - Negro con texto blanco, arriba */
+    #musicFooter::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      top: -45px;
+      left: 50%;
+      transform: translateX(-30%) translateY(-10px);
+      background: rgba(0, 0, 0, 0.95);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 10000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    #musicFooter:hover::after {
+      opacity: 1;
+      transform: translateX(-30%) translateY(0);
+    }
+
+    /* Arrow para tooltip FOOTER - apunta hacia abajo */
+    #musicFooter::before {
+      content: '';
+      position: absolute;
+      top: -11px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid rgba(0, 0, 0, 0.95);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 10000;
+    }
+
+    #musicFooter:hover::before {
+      opacity: 1;
+    }
+
+    /* Overlay general */
+.about-overlay {
+  position: fixed;
+  top: 0;
+  width: 40vw;
+  max-width: 520px;
+  height: 100vh;
+  z-index: 9000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+
+  /* Márgenes para dar respiro visual */
+  padding-top: 80px;
+  padding-bottom: 80px;
+  box-sizing: border-box;
+}
+
+/* Activo */
+.about-overlay.is-active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+/* Posición */
+.about-right {
+  right: 0;
+  transform: translateX(100%);
+  padding: 100px 40px 100px 20px; /* Respiro top, right, bottom, left */
+}
+
+.about-left {
+  left: 0;
+  transform: translateX(-40%);
+  padding: 100px 20px 100px 40px; /* Respiro top, right, bottom, left */
+}
+.about-close {
+  position: absolute;
+  top: 120px; /* Empujado más abajo dentro del card */
+  right: 50px;
+  z-index: 1;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 12px; /* Área clicable */
+
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+
+  color: inherit;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.about-close:hover {
+  opacity: 1;
+  background: rgba(128, 128, 128, 0.15);
+  transform: rotate(90deg);
+}
+
+/* Temas */
+.about-dark {
+  color: #fff;
+}
+
+.about-light {
+  color: #000;
+}
+
+/* Card interna - efecto flotante */
+.about-card {
+  width: 100%;
+  height: 100%;
+  max-height: calc(100% - 40px); /* Altura con respiro interno adicional */
+  padding: 48px 40px;
+  overflow-y: auto;
+  border-radius: 12px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Card con tema oscuro (KOA - izquierda) */
+.about-dark .about-card {
+  background: rgba(0, 0, 0, 0.70);
+  box-shadow:
+    -12px 12px 40px rgba(0, 0, 0, 0.5),
+    -4px 4px 12px rgba(0, 0, 0, 0.3),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Card con tema claro (KOI - derecha) */
+.about-light .about-card {
+  background: rgba(255, 255, 255, 0.70);
+  box-shadow:
+    12px 12px 40px rgba(0, 0, 0, 0.18),
+    4px 4px 12px rgba(0, 0, 0, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+/* Scrollbar personalizado para el card */
+.about-card::-webkit-scrollbar {
+  width: 6px;
+}
+
+.about-dark .about-card::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.about-dark .about-card::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.about-light .about-card::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.about-light .about-card::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+/* Título */
+.about-title {
+  font-size: 32px;
+  letter-spacing: 4px;
+  margin-bottom: 20px;
+}
+
+/* Texto */
+.about-text {
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+/* Imagen */
+.about-image img {
+  width: 100%;
+  border-radius: 4px;
+  opacity: 0.85;
+}
+
+/* ===================================
+   RESPONSIVE - MEDIA QUERIES
+=================================== */
+
+/* Tablets (hasta 1024px) */
+@media screen and (max-width: 1024px) {
+  .about-overlay {
+    width: 50vw;
+    max-width: 600px;
+    padding-top: 70px;
+    padding-bottom: 70px;
+  }
+
+  .about-right {
+    padding: 100px 30px 100px 20px; /* Mantener gap original */
+  }
+
+  .about-left {
+    padding: 100px 20px 100px 30px; /* Mantener gap original */
+  }
+
+  .about-card {
+    max-height: calc(100% - 40px);
+    padding: 40px 32px;
+  }
+
+  .about-close {
+    top: 115px;
+    right: 40px;
+  }
+
+  .about-title {
+    font-size: 28px;
+    letter-spacing: 3px;
+  }
+
+  .about-text {
+    font-size: 14px;
+  }
+}
+
+/* Tablets pequeñas y móviles landscape (hasta 768px) */
+@media screen and (max-width: 768px) {
+  .about-overlay {
+    width: 70vw;
+    max-width: none;
+    padding-top: 60px;
+    padding-bottom: 60px;
+  }
+
+  .about-right {
+    padding: 80px 20px 80px 15px; /* Gap balanceado */
+  }
+
+  .about-left {
+    padding: 80px 15px 80px 20px; /* Gap balanceado */
+  }
+
+  .about-card {
+    max-height: calc(100% - 30px);
+    padding: 32px 24px;
+    border-radius: 8px;
+  }
+
+  .about-close {
+    top: 100px;
+    right: 30px;
+    font-size: 20px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .about-title {
+    font-size: 24px;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+
+  .about-text {
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+}
+
+/* Móviles (hasta 480px) */
+@media screen and (max-width: 480px) {
+  .about-overlay {
+    width: 100vw;
+    max-width: 100%;
+    padding-top: 50px;
+    padding-bottom: 50px;
+  }
+
+  .about-right {
+    padding: 60px 15px; /* Gap balanceado arriba y abajo */
+    transform: translateY(100%);
+  }
+
+  .about-left {
+    padding: 60px 15px; /* Gap balanceado arriba y abajo */
+    transform: translateY(100%);
+  }
+
+  /* Cambiar animación en móvil - desde abajo */
+  .about-overlay.is-active {
+    transform: translateY(0);
+  }
+
+  .about-card {
+    max-height: calc(100% - 30px);
+    padding: 24px 20px;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .about-close {
+    top: 80px;
+    right: 20px;
+    font-size: 18px;
+    width: 36px;
+    height: 36px;
+    padding: 10px;
+  }
+
+  .about-title {
+    font-size: 20px;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .about-text {
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  /* Ajustar scrollbar en móvil */
+  .about-card::-webkit-scrollbar {
+    width: 4px;
+  }
+}
+
+/* Móviles muy pequeños (hasta 360px) */
+@media screen and (max-width: 360px) {
+  .about-overlay {
+    width: 100vw;
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  .about-right {
+    padding: 50px 12px; /* Gap balanceado */
+  }
+
+  .about-left {
+    padding: 50px 12px; /* Gap balanceado */
+  }
+
+  .about-card {
+    max-height: calc(100% - 20px);
+    padding: 20px 16px;
+  }
+
+  .about-close {
+    top: 70px;
+    right: 15px;
+  }
+
+  .about-title {
+    font-size: 18px;
+    letter-spacing: 1.5px;
+  }
+
+  .about-text {
+    font-size: 11px;
+    margin-bottom: 14px;
+  }
+}
+.carousel-item {
+  margin-right: 0px;
+}
+
+/* ===================================
+   LAZY LOADING - SMOOTH TRANSITIONS
+=================================== */
+
+/* Placeholder mientras carga la imagen */
+.lazy-img {
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+  transform: scale(1.05);
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  min-height: 400px; /* Evita saltos de layout */
+}
+
+/* Animación shimmer/skeleton mientras carga */
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Imagen cargada - fade in suave */
+.lazy-img.loaded {
+  opacity: 1;
+  transform: scale(1);
+  background: none;
+  animation: none;
+}
+
+/* Preload de las primeras 2 imágenes (above the fold) */
+.slide-img:first-child,
+.slide-img:nth-child(2) {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Progressive image loading con blur-up effect (opcional) */
+.lazy-img.blur-up {
+  filter: blur(20px);
+  transition: filter 0.6s ease-in-out, opacity 0.6s ease-in-out;
+}
+
+.lazy-img.blur-up.loaded {
+  filter: blur(0);
+}
+  </style>
+</head>
+
+<body id="bodyRoot">
+
+  <!-- Header -->
+  <header class="main-header" id="mainHeader">
+    <div class="header-content">
+      <div class="header-logo">
+        <img src="./images/logo.png" alt="OKKO" class="header-logo-img">
+        <div class="logo-text-block">
+          <span class="logo-project-name">KOI</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <ul class="nav-menu">
+          <li><a href="#" id="koiAbout" data-i18n="nav.nosotros">Nosotros</a></li>
+          <li><a href="#" class="proyectos-link" data-i18n="nav.proyectos">Proyectos</a></li>
+          <!-- <li class="has-submenu">
+            <a href="#" class="proyectos-link">Proyectos</a>
+            <ul class="submenu">
+              <li><a href="#" class="proyectos-link">Casas</a></li>
+              <li><a href="#" class="proyectos-link">Edificios</a></li>
+              <li><a href="#" class="proyectos-link">Comercios</a></li>
+            </ul>
+          </li> -->
+          <li><a href="#" id="contactoHeader" data-i18n="nav.contacto">Contacto</a></li>
+          <li class="has-submenu">
+            <a href="#" id="musicHeader"><i class="fa-solid fa-volume-high"></i></a>
+            <ul class="submenu">
+              <li><a href="#" class="music-track" data-src="./music/intro.mp3" data-i18n="nav.intro">Intro</a></li>
+              <li><a href="#" class="music-track" data-src="./music/intro.mp3" data-i18n="nav.cancion2">Canción 2</a></li>
+              <li><a href="#" class="music-track" data-src="./music/intro.mp3" data-i18n="nav.cancion3">Canción 3</a></li>
+            </ul>
+          </li>
+          <li class="lang-switch">
+            <span class="lang-btn is-active" data-lang="es">ESP</span>
+            <span class="lang-sep">|</span>
+            <span class="lang-btn" data-lang="en">ENG</span>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Footer -->
+  <footer class="main-footer" id="mainFooter">
+    <div class="footer-content">
+      <nav class="footer-nav" id="footerNav">
+        <ul class="nav-menu">
+          <li class="lang-switch">
+            <span class="lang-btn" data-lang="en">ENG</span>
+            <span class="lang-sep">|</span>
+            <span class="lang-btn is-active" data-lang="es">ESP</span>
+          </li>
+          <li class="has-submenu">
+            <a href="#" id="musicFooter"><i class="fa-solid fa-volume-high"></i></a>
+            <ul class="submenu">
+              <li><a href="#" class="music-track" data-src="./music/intro.mp3" data-i18n="nav.intro">Intro</a></li>
+              <li><a href="#" class="music-track" data-src="./music/intro.mp3" data-i18n="nav.cancion2">Canción 2</a></li>
+              <li><a href="#" class="music-track" data-src="./music/intro.mp3" data-i18n="nav.cancion3">Canción 3</a></li>
+            </ul>
+          </li>
+          <li><a href="#" id="contactoFooter" data-i18n="nav.contacto">Contacto</a></li>
+          <li><a href="#" class="proyectos-link" data-i18n="nav.proyectos">Proyectos</a></li>
+          <!-- <li class="has-submenu">
+            <a href="#" class="proyectos-link">Proyectos</a>
+            <ul class="submenu">
+              <li><a href="#" class="proyectos-link">Casas</a></li>
+              <li><a href="#" class="proyectos-link">Edificios</a></li>
+              <li><a href="#" class="proyectos-link">Comercios</a></li>
+            </ul>
+          </li> -->
+          <li><a href="#" id="koaAbout" data-i18n="nav.nosotros">Nosotros</a></li>
+        </ul>
+      </nav>
+      <div class="footer-logo">
+        <div class="logo-text-block">
+          <span class="logo-project-name">KOA</span>
+        </div>
+        <img src="./images/white-logo.png" alt="OKKO" class="footer-logo-img">
+      </div>
+    </div>
+  </footer>
+
+  <main class="stage" id="stage">
+    <div class="logo-wrap">
+      <div class="logo-pos">
+          <!-- Logo dividido en dos partes con clip-path diagonal -->
+          <img src="./images/koi-logo.png" width="500px" class="main-logo logo-koi" id="logoKoi"/>
+          <img src="./images/koi-logo.png" width="500px" class="main-logo logo-koa" id="logoKoa"/>
+          <h3 class="okko-title" data-text="OKKO"></h3>
+          <!-- Labels KOI / KOA relativos al logo -->
+          <div class="diagonal-label label-top" id="labelTop">KOA</div>
+          <div class="diagonal-label label-bottom" id="labelBottom">KOI</div>
+
+      </div>
+  </div>
+  
+
+    <!-- Diagonales -->
+    <div class="diagonal diagonal-top" id="top">
+
+      <div class="slide-container" id="koiSlides">
+        <img data-src="./images/slides/KOI/md/_MG_0582-2.jpg"                  data-webp="./images/slides/KOI/md/_MG_0582-2.webp"                  class="slide-img lazy-img" loading="eager" alt="Proyecto KOI">
+        <img data-src="./images/slides/KOI/md/_MG_0623.jpg"                    data-webp="./images/slides/KOI/md/_MG_0623.webp"                    class="slide-img lazy-img" loading="eager" alt="Proyecto KOI">
+        <img data-src="./images/slides/KOI/md/7.jpg"                           data-webp="./images/slides/KOI/md/7.webp"                           class="slide-img lazy-img" loading="lazy"  alt="Proyecto KOI">
+        <img data-src="./images/slides/KOI/md/Escena_9.jpg"                    data-webp="./images/slides/KOI/md/Escena_9.webp"                    class="slide-img lazy-img" loading="lazy"  alt="Proyecto KOI">
+        <img data-src="./images/slides/KOI/md/Jardin.jpg"                      data-webp="./images/slides/KOI/md/Jardin.webp"                      class="slide-img lazy-img" loading="lazy"  alt="Proyecto KOI">
+        <img data-src="./images/slides/KOI/md/JORGE_TORRES_BRIARA_FACHADA_HD.jpg"    data-webp="./images/slides/KOI/md/JORGE_TORRES_BRIARA_FACHADA_HD.webp"    class="slide-img lazy-img" loading="lazy"  alt="Proyecto KOI">
+        <img data-src="./images/slides/KOI/md/JORGE_TORRES_BRIARA_ROOF_HD.jpg"       data-webp="./images/slides/KOI/md/JORGE_TORRES_BRIARA_ROOF_HD.webp"       class="slide-img lazy-img" loading="lazy"  alt="Proyecto KOI">
+        <img data-src="./images/slides/KOI/md/JORGE_TORRES_BRIARA_SALA_COMEDOR_HD.jpg" data-webp="./images/slides/KOI/md/JORGE_TORRES_BRIARA_SALA_COMEDOR_HD.webp" class="slide-img lazy-img" loading="lazy"  alt="Proyecto KOI">
+        <img data-src="./images/slides/KOI/md/M1_Recamara.jpg"                 data-webp="./images/slides/KOI/md/M1_Recamara.webp"                 class="slide-img lazy-img" loading="lazy"  alt="Proyecto KOI">
+        <img data-src="./images/slides/KOI/md/TF1_1500.jpg"                    data-webp="./images/slides/KOI/md/TF1_1500.webp"                    class="slide-img lazy-img" loading="lazy"  alt="Proyecto KOI">
+        <img data-src="./images/slides/KOI/md/Trasera.jpg"                     data-webp="./images/slides/KOI/md/Trasera.webp"                     class="slide-img lazy-img" loading="lazy"  alt="Proyecto KOI">
+    </div>
+
+    </div>
+
+    <div class="diagonal diagonal-bottom" id="bottom">
+
+      <div class="slide-container" id="koaSlides">
+        <img data-src="./images/slides/KOA/md/_MG_0490.jpg"       data-webp="./images/slides/KOA/md/_MG_0490.webp"       class="slide-img lazy-img" loading="eager" alt="Proyecto KOA">
+        <img data-src="./images/slides/KOA/md/_MG_0571.jpg"       data-webp="./images/slides/KOA/md/_MG_0571.webp"       class="slide-img lazy-img" loading="eager" alt="Proyecto KOA">
+        <img data-src="./images/slides/KOA/md/Alberca.jpg"         data-webp="./images/slides/KOA/md/Alberca.webp"         class="slide-img lazy-img" loading="lazy"  alt="Proyecto KOA">
+        <img data-src="./images/slides/KOA/md/Escena_7.jpg"        data-webp="./images/slides/KOA/md/Escena_7.webp"        class="slide-img lazy-img" loading="lazy"  alt="Proyecto KOA">
+        <img data-src="./images/slides/KOA/md/Fachada_Trasera.jpg" data-webp="./images/slides/KOA/md/Fachada_Trasera.webp" class="slide-img lazy-img" loading="lazy"  alt="Proyecto KOA">
+        <img data-src="./images/slides/KOA/md/H1.jpg"              data-webp="./images/slides/KOA/md/H1.webp"              class="slide-img lazy-img" loading="lazy"  alt="Proyecto KOA">
+        <img data-src="./images/slides/KOA/md/H16.jpg"             data-webp="./images/slides/KOA/md/H16.webp"             class="slide-img lazy-img" loading="lazy"  alt="Proyecto KOA">
+    </div>
+
+    </div>
+   <!-- Labels movidos dentro de logo-pos -->
+
+    <!-- Overlays específicos para cada diagonal -->
+    <div class="diagonal-overlay diagonal-overlay-top" id="overlayTop"></div>
+    <div class="diagonal-overlay diagonal-overlay-bottom" id="overlayBottom"></div>
+
+    <div class="overlay"></div>
+
+    
+  </main>
+
+  <!-- Audio element for background music -->
+  <audio id="backgroundMusic" loop preload="auto">
+    <source src="./music/intro.mp3" type="audio/mpeg">
+    Tu navegador no soporta el elemento de audio.
+  </audio>
+
+  <!-- Nosotros Overlay -->
+<div class="about-overlay about-right about-light" id="aboutOverlay">
+
+  <button class="about-close" aria-label="Cerrar">
+    ✕
+  </button>
+
+  <div class="about-card" id="aboutCardContent">
+    <!-- Contenido dinámico generado por JavaScript -->
+  </div>
+</div>
+
+  <!-- Contacto Overlay -->
+<div class="about-overlay about-right about-light" id="contactOverlay">
+
+  <button class="about-close" id="contactClose" aria-label="Cerrar">
+    ✕
+  </button>
+
+  <div class="about-card" id="contactCardContent">
+    <!-- Mensaje de éxito -->
+    <div class="contact-success-msg" id="contactSuccessMsg">
+      <div class="checkmark-container">
+        <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+          <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+          <path class="checkmark-check" fill="none" d="M14 27l7 7 16-16"/>
+        </svg>
+        <p data-i18n="contact.success">¡Mensaje enviado correctamente!</p>
+      </div>
+    </div>
+
+    <!-- Mensaje de error -->
+    <div class="contact-error-msg" id="contactErrorMsg">
+      <div class="cross-container">
+        <svg class="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+          <circle class="cross-circle" cx="26" cy="26" r="25" fill="none"/>
+          <path class="cross-line" d="M16 16l20 20M36 16L16 36" fill="none"/>
+        </svg>
+        <p data-i18n="contact.error">Error al enviar el mensaje, intenta más tarde.</p>
+      </div>
+    </div>
+
+    <!-- Formulario de contacto -->
+    <form class="contact-form" id="contactForm" novalidate>
+      <h2 data-i18n="contact.title">CONTACTO</h2>
+
+      <label for="contactNombre" data-i18n="contact.nombre">Nombre</label>
+      <input type="text" id="contactNombre" autocomplete="given-name" />
+      <div class="contact-error-text" id="errContactNombre" data-i18n="contact.errNombre">Campo requerido</div>
+
+      <label for="contactApellido" data-i18n="contact.apellido">Apellido</label>
+      <input type="text" id="contactApellido" autocomplete="family-name" />
+      <div class="contact-error-text" id="errContactApellido" data-i18n="contact.errApellido">Campo requerido</div>
+
+      <label for="contactCorreo" data-i18n="contact.correo">Correo</label>
+      <input type="email" id="contactCorreo" autocomplete="email" />
+      <div class="contact-error-text" id="errContactCorreo" data-i18n="contact.errCorreo">Correo inválido</div>
+
+      <label for="contactTelefono" data-i18n="contact.telefono">Teléfono</label>
+      <input type="tel" id="contactTelefono" autocomplete="tel" />
+      <div class="contact-error-text" id="errContactTelefono" data-i18n="contact.errTelefono">Teléfono inválido (8-15 dígitos)</div>
+
+      <label for="contactComentario" data-i18n="contact.comentario">Comentario</label>
+      <textarea id="contactComentario" rows="4"></textarea>
+      <div class="contact-error-text" id="errContactComentario" data-i18n="contact.errComentario">Campo requerido</div>
+
+      <button type="submit" data-i18n="contact.enviar">Enviar</button>
+    </form>
+  </div>
+</div>
+
+  <!-- Modal de Proyectos — grid + detalle en un solo contenedor con 2 paneles -->
+  <div class="projects-modal hidden" id="projectsModal">
+
+    <!-- Botón cerrar modal completo (visible en Panel 1 - grid) -->
+    <button class="projects-close-btn" id="projectsCloseBtn">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <!-- Botón volver al grid (visible en Panel 2 - detalle) -->
+    <button class="project-detail-close-btn" id="projectDetailCloseBtn">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <!-- Slider track: dos paneles side-by-side -->
+    <div class="projects-slider-track" id="projectsSliderTrack">
+
+      <!-- PANEL 1: Grid de proyectos -->
+      <div class="projects-panel projects-panel-grid">
+        <div class="projects-modal-content" id="projectsModalContent">
+          <div class="projects-modal-header">
+            <h1 data-i18n="projects.title">PROYECTOS</h1>
+            <p data-i18n="projects.subtitle">Explora nuestra selección de proyectos destacados</p>
+          </div>
+          <div class="projects-grid" id="projectsGridModal">
+            <!-- Proyectos se cargan dinámicamente vía JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 2: Detalle del proyecto -->
+      <div class="projects-panel projects-panel-detail">
+        <!-- Pantalla de Acceso con Código -->
+        <div class="access-screen hidden" id="projectAccessScreen">
+          <h2><span data-i18n="projects.protectedTitle">Proyecto Protegido</span> <i class="fa-solid fa-lock"></i></h2>
+          <p data-i18n="projects.protectedMsg">Ingresa el código de acceso para ver este proyecto:</p>
+          <input type="password" id="projectAccessInput" maxlength="6" placeholder="••••••" />
+          <span class="error-msg" id="projectAccessError"></span>
+        </div>
+
+        <!-- Galería - Fullscreen Peek Carousel (Swiper.js) -->
+        <div class="gallery-screen hidden" id="projectGalleryScreen">
+          <div class="swiper peek-carousel" id="projectSwiper">
+            <div class="swiper-wrapper" id="swiperWrapper">
+              <!-- Slides insertados dinámicamente -->
+            </div>
+            <div class="swiper-button-prev" id="projectPrevBtn"></div>
+            <div class="swiper-button-next" id="projectNextBtn"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- Bootstrap + FontAwesome JS -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/js/all.min.js"
+    integrity="sha512-6BTOlkauINO65nLhXhthZMtepgJSghyimIalb+crKRPhvhmsCdnIuGcVbR5/aQY2A+260iC1OPy1oCdB6pSSwQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- GSAP para animaciones suaves -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <!-- Swiper.js -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+  <!-- i18n: debe cargarse antes que los demás scripts propios -->
+  <script src="./i18n.js"></script>
+
+  <!-- Custom Script -->
+  <script src="./script.js"></script>
+  <script src="./proyectos.js"></script>
+  <script src="./contacto.js"></script>  
+  <script>
+    /* ===============================
+       ELEMENTOS
+    ================================ */
+    const aboutOverlay = document.getElementById("aboutOverlay");
+    const aboutClose = document.querySelector(".about-close");
+    const aboutCardContent = document.getElementById("aboutCardContent");
+
+    // Links Nosotros
+    const headerNosotros = document.getElementById("koiAbout");
+    const footerNosotros = document.getElementById("koaAbout");
+
+    // Contacto Overlay
+    const contactOverlay = document.getElementById("contactOverlay");
+    const contactClose = document.getElementById("contactClose");
+    const contactCardContent = document.getElementById("contactCardContent");
+
+    // Links Contacto
+    const headerContacto = document.getElementById("contactoHeader");
+    const footerContacto = document.getElementById("contactoFooter");
+
+    let aboutOpen = false;
+    let contactOpen = false;
+
+    /* ===============================
+       FUNCIONES CORE
+    ================================ */
+    const aboutImages = {
+      KOI: "./images/slides/KOI/7.jpg",
+      KOA: "./images/slides/KOA/Alberca.jpg"
+    };
+
+    function updateAboutContent(mode) {
+      const t = (window.i18n && window.i18n.t) ? window.i18n.t.bind(window.i18n) : (k) => k;
+      aboutCardContent.innerHTML = `
+        <h2 class="about-title">${mode}</h2>
+        <h3 style="font-size: 18px; letter-spacing: 2px; margin-bottom: 24px; opacity: 0.7;">${t("about." + mode + ".subtitle")}</h3>
+        <p class="about-text">${t("about." + mode + ".p1")}</p>
+        <p class="about-text">${t("about." + mode + ".p2")}</p>
+        <p class="about-text">${t("about." + mode + ".p3")}</p>
+        <div class="about-image" style="margin-top: 32px;">
+          <img src="${aboutImages[mode]}" alt="${mode} image">
+        </div>
+      `;
+    }
+
+    function openAbout(mode) {
+      if (aboutOpen) return;
+      aboutOpen = true;
+
+      // Cerrar overlay de contacto si está abierto
+      if (contactOpen) {
+        closeContact();
+      }
+
+      // Reset - remover todas las clases de posición y tema
+      aboutOverlay.classList.remove(
+        "about-right",
+        "about-left",
+        "about-light",
+        "about-dark",
+        "is-active"
+      );
+
+      // Actualizar contenido dinámico
+      updateAboutContent(mode);
+
+      if (mode === "KOI") {
+        // Header → derecha, claro
+        aboutOverlay.classList.add("about-right", "about-light");
+      } else {
+        // Footer → izquierda, oscuro
+        aboutOverlay.classList.add("about-left", "about-dark");
+      }
+
+      // Forzar reflow del navegador para que la transición funcione correctamente
+      void aboutOverlay.offsetWidth;
+
+      // Mostrar con transición
+      requestAnimationFrame(() => {
+        aboutOverlay.classList.add("is-active");
+      });
+
+      // Bloquear scroll fondo
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeAbout() {
+      if (!aboutOpen) return;
+      aboutOpen = false;
+
+      aboutOverlay.classList.remove("is-active");
+
+      document.body.style.overflow = "";
+    }
+
+    /* ===============================
+       FUNCIONES CONTACTO
+    ================================ */
+    function openContact(mode) {
+      if (contactOpen) return;
+      contactOpen = true;
+
+      // Cerrar overlay de "Nosotros" si está abierto
+      if (aboutOpen) {
+        closeAbout();
+      }
+
+      // Reset - remover todas las clases de posición y tema
+      contactOverlay.classList.remove(
+        "about-right",
+        "about-left",
+        "about-light",
+        "about-dark",
+        "is-active"
+      );
+
+      if (mode === "KOI") {
+        // Header → derecha, claro
+        contactOverlay.classList.add("about-right", "about-light");
+      } else {
+        // Footer → izquierda, oscuro
+        contactOverlay.classList.add("about-left", "about-dark");
+      }
+
+      // Forzar reflow del navegador para que la transición funcione correctamente
+      void contactOverlay.offsetWidth;
+
+      // Mostrar con transición
+      requestAnimationFrame(() => {
+        contactOverlay.classList.add("is-active");
+      });
+
+      // Bloquear scroll fondo
+      document.body.style.overflow = "hidden";
+
+      // Reinicializar formulario si existe la función
+      if (typeof window.reinitContactForm === 'function') {
+        setTimeout(() => {
+          window.reinitContactForm();
+        }, 100);
+      }
+    }
+
+    function closeContact() {
+      if (!contactOpen) return;
+      contactOpen = false;
+
+      contactOverlay.classList.remove("is-active");
+
+      document.body.style.overflow = "";
+
+      // Reset formulario
+      const form = document.getElementById('contactForm');
+      if (form) {
+        form.reset();
+        // Limpiar mensajes de error
+        const errorElements = document.querySelectorAll('.contact-error-text');
+        errorElements.forEach(el => el.classList.remove('active'));
+      }
+    }
+
+    /* ===============================
+       EVENTOS
+    ================================ */
+
+    // Header → KOI (derecha, claro)
+    if (headerNosotros) {
+      headerNosotros.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation(); // Evitar que se propague al padre
+        openAbout("KOI");
+      });
+    }
+
+    // Footer → KOA (izquierda, oscuro)
+    if (footerNosotros) {
+      footerNosotros.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation(); // Evitar que se propague al padre
+        openAbout("KOA");
+      });
+    }
+
+    // Cerrar
+    if (aboutClose) {
+      aboutClose.addEventListener("click", closeAbout);
+    }
+
+    // Click en overlay (fuera del card)
+    aboutOverlay.addEventListener("click", (e) => {
+      // Solo cerrar si se hace click directamente en el overlay, no en sus hijos
+      if (e.target === aboutOverlay) {
+        closeAbout();
+      }
+    });
+
+    /* ===============================
+       EVENTOS CONTACTO
+    ================================ */
+
+    // Header → KOI (derecha, claro)
+    if (headerContacto) {
+      headerContacto.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openContact("KOI");
+      });
+    }
+
+    // Footer → KOA (izquierda, oscuro)
+    if (footerContacto) {
+      footerContacto.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openContact("KOA");
+      });
+    }
+
+    // Cerrar contacto
+    if (contactClose) {
+      contactClose.addEventListener("click", closeContact);
+    }
+
+    // Click en overlay de contacto (fuera del card)
+    contactOverlay.addEventListener("click", (e) => {
+      if (e.target === contactOverlay) {
+        closeContact();
+      }
+    });
+
+    // Re-renderizar contenido dinámico al cambiar idioma
+    document.addEventListener("langchange", () => {
+      if (aboutOpen) {
+        const currentMode = aboutOverlay.classList.contains("about-dark") ? "KOA" : "KOI";
+        updateAboutContent(currentMode);
+      }
+    });
+
+    // ESC
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeAbout();
+        closeContact();
+      }
+    });
+
+    // Cerrar modal si se hace click fuera (en cualquier parte de la página, excepto menús)
+    document.addEventListener("click", (e) => {
+      if (aboutOpen) {
+        // No cerrar si el click es:
+        // - Dentro del overlay (card)
+        // - En un link del menú
+        // - En el botón de cerrar (ya tiene su propio handler)
+        const clickedInsideOverlay = aboutOverlay.contains(e.target);
+        const clickedOnMenuLink = e.target.closest('.nav-menu a');
+
+        if (!clickedInsideOverlay && !clickedOnMenuLink) {
+          closeAbout();
+        }
+      }
+
+      if (contactOpen) {
+        const clickedInsideContactOverlay = contactOverlay.contains(e.target);
+        const clickedOnMenuLink = e.target.closest('.nav-menu a');
+
+        if (!clickedInsideContactOverlay && !clickedOnMenuLink) {
+          closeContact();
+        }
+      }
+    });
+
+    /* ===============================
+       INTEGRACIÓN MODAL DE PROYECTOS
+    ================================ */
+
+    // Detectar tema actual basado en el brand activo (estado persistente)
+    function getCurrentTheme() {
+      const top = document.getElementById('top');
+      const bottom = document.getElementById('bottom');
+      // El brand activo vive en #top.active (KOI) / #bottom.active (KOA),
+      // fijado por selectDiagonal()/showSlides(). Las clases .top/.bottom de
+      // #stage son solo de hover y no sirven para esto.
+      if (top && top.classList.contains('active')) {
+        return 'light'; // KOI
+      } else if (bottom && bottom.classList.contains('active')) {
+        return 'dark'; // KOA
+      }
+      // Fallback por URL (selectDiagonal hace pushState a /koi | /koa)
+      const path = window.location.pathname;
+      if (path.endsWith('/koi')) return 'light';
+      if (path.endsWith('/koa')) return 'dark';
+      return 'dark'; // default seguro
+    }
+
+    // Abrir modal de proyectos cuando se hace clic en cualquier link de proyectos
+    document.querySelectorAll('.proyectos-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const currentTheme = getCurrentTheme();
+
+        // Determinar si el click viene del header o footer
+        const isFromHeader = link.closest('#mainHeader') !== null;
+        const isFromFooter = link.closest('#mainFooter') !== null;
+        const source = isFromHeader ? 'header' : isFromFooter ? 'footer' : '';
+
+        // Llamar a la función global del módulo de proyectos
+        if (typeof window.openProjectsModal === 'function') {
+          window.openProjectsModal(currentTheme, source);
+        }
+      });
+    });
+
+    /* ===============================
+       LAZY LOADING IMPLEMENTATION
+    ================================ */
+    (function() {
+      // Detectar soporte WebP una sola vez
+      const webpOk = (() => {
+        const c = document.createElement('canvas');
+        return (c.getContext && c.getContext('2d'))
+          ? c.toDataURL('image/webp').indexOf('data:image/webp') === 0
+          : false;
+      })();
+
+      // Seleccionar la mejor fuente disponible para cada imagen
+      function bestSrc(img) {
+        const webp = img.getAttribute('data-webp');
+        const jpg  = img.getAttribute('data-src');
+        return (webpOk && webp) ? webp : jpg;
+      }
+
+      function loadImg(img) {
+        const src = bestSrc(img);
+        if (!src) return;
+        img.src = src;
+        img.onload  = () => requestAnimationFrame(() => img.classList.add('loaded'));
+        img.onerror = () => img.classList.add('loaded');
+        img.removeAttribute('data-src');
+        img.removeAttribute('data-webp');
+      }
+
+      const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            observer.unobserve(entry.target);
+            loadImg(entry.target);
+          }
+        });
+      }, { rootMargin: '100px', threshold: 0.01 });
+
+      function initLazyLoading() {
+        document.querySelectorAll('.lazy-img').forEach(img => {
+          // loading="eager" → cargar inmediatamente, el resto observar
+          if (img.loading === 'eager') {
+            loadImg(img);
+          } else {
+            imageObserver.observe(img);
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initLazyLoading);
+      } else {
+        initLazyLoading();
+      }
+
+      window.reinitLazyLoading = initLazyLoading;
+    })();
+
+    /* ===============================
+       MUSIC PLAYER TOGGLE
+    ================================ */
+    (function() {
+      const backgroundMusic = document.getElementById('backgroundMusic');
+      const musicHeaderBtn = document.getElementById('musicHeader');
+      const musicFooterBtn = document.getElementById('musicFooter');
+      let isPlaying = false;
+
+      // Verificar que los elementos existen
+      if (!backgroundMusic || !musicHeaderBtn || !musicFooterBtn) {
+        console.error('Music player elements not found');
+        console.log('backgroundMusic:', backgroundMusic);
+        console.log('musicHeaderBtn:', musicHeaderBtn);
+        console.log('musicFooterBtn:', musicFooterBtn);
+        return;
+      }
+
+      // Establecer volumen al 25%
+      backgroundMusic.volume = 0.25;
+
+      function toggleMusic(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Font Awesome convierte <i> en <svg>, así que buscamos el svg
+        const headerIcon = musicHeaderBtn.querySelector('svg');
+        const footerIcon = musicFooterBtn.querySelector('svg');
+
+        if (!headerIcon || !footerIcon) {
+          console.error('Music icons not found');
+          return;
+        }
+
+        // Agregar clase para animación
+        musicHeaderBtn.classList.add('music-click');
+        musicFooterBtn.classList.add('music-click');
+
+        // Remover clase después de la animación
+        setTimeout(() => {
+          musicHeaderBtn.classList.remove('music-click');
+          musicFooterBtn.classList.remove('music-click');
+        }, 600);
+
+        if (isPlaying) {
+          // Detener la música y volver al inicio
+          backgroundMusic.pause();
+          backgroundMusic.currentTime = 0;
+
+          // Cambiar iconos a play
+          headerIcon.classList.remove('fa-stop');
+          headerIcon.classList.add('fa-play');
+          footerIcon.classList.remove('fa-stop');
+          footerIcon.classList.add('fa-play');
+
+          isPlaying = false;
+        } else {
+          // Reproducir música
+          backgroundMusic.play().catch(error => {
+            console.error('Error playing music:', error);
+          });
+
+          // Cambiar iconos a stop
+          headerIcon.classList.remove('fa-play');
+          headerIcon.classList.add('fa-stop');
+          footerIcon.classList.remove('fa-play');
+          footerIcon.classList.add('fa-stop');
+
+          isPlaying = true;
+        }
+      }
+
+      // Agregar event listeners
+      musicHeaderBtn.addEventListener('click', toggleMusic);
+      musicFooterBtn.addEventListener('click', toggleMusic);
+
+      console.log('Music player initialized');
+    })();
+    </script>
+
+</body>
+</html>

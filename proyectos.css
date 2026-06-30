@@ -1,0 +1,929 @@
+/* =====================================================
+   ESTILOS PARA MODAL DE PROYECTOS - DOS NIVELES
+   ===================================================== */
+
+/* NIVEL 1 - Modal Principal (Grid de Proyectos) - Centrado entre Header/Footer */
+.projects-modal {
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  z-index: 20000;  /* por encima de header (z-index: 20) y footer */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.6s ease, visibility 0.6s ease, background 0.6s ease;
+  overflow: hidden;
+  /* Sin flex — el track se posiciona con position: relative/absolute */
+}
+
+/* Tema Dark (KOA) - Fondo negro */
+.projects-modal.theme-dark {
+  background: rgba(0, 0, 0, 0.72);
+}
+
+/* Tema Light (KOI) - Fondo blanco */
+.projects-modal.theme-light {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+/* Override: Header → KOI → blanco */
+.projects-modal.from-header {
+  background: rgba(255, 255, 255, 0.72) !important;
+}
+
+/* Override: Footer → KOA → negro */
+.projects-modal.from-footer {
+  background: rgba(0, 0, 0, 0.72) !important;
+}
+
+.projects-modal.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.projects-modal.closing {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease;
+}
+
+/* Contenedor del modal principal — centrado dentro del flex panel */
+.projects-modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 1600px;
+  padding: 3rem 2rem;
+  margin: auto; /* centra vertical cuando hay espacio */
+}
+
+/* =====================================================
+   SLIDER — dos paneles que se deslizan independientemente
+   ===================================================== */
+
+/* Track: solo contenedor relativo que llena el modal */
+.projects-slider-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Cada panel ocupa todo el modal */
+.projects-panel {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+/* Panel 1 — grid scrollable, visible por defecto, contenido centrado */
+.projects-panel-grid {
+  transform: translateX(0);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Panel 2 — detalle fuera de pantalla a la derecha por defecto */
+.projects-panel-detail {
+  transform: translateX(100%);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cuando el detalle está activo: panel 1 → izquierda, panel 2 → centro */
+.projects-modal.detail-active .projects-panel-grid {
+  transform: translateX(-100%);
+}
+
+.projects-modal.detail-active .projects-panel-detail {
+  transform: translateX(0);
+}
+
+/* Botón cerrar — ambos posicionados sobre el modal, fuera del track */
+.projects-close-btn,
+.project-detail-close-btn {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  backdrop-filter: blur(10px);
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20001;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
+  transition: opacity 0.3s ease, background 0.3s ease, transform 0.3s ease;
+}
+
+/* Botón cerrar - Modal Principal */
+.projects-close-btn {
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Botón detalle — oculto por defecto */
+.project-detail-close-btn {
+  background: rgba(255, 255, 255, 0.3);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Cuando el detalle está activo: ocultar X principal, mostrar X detalle */
+.projects-modal.detail-active .projects-close-btn {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.projects-modal.detail-active .project-detail-close-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Color del botón según tema */
+/* KOA (negro) → botón blanco */
+.projects-modal.theme-dark .projects-close-btn {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* KOI (blanco) → círculo oscuro + ícono blanco para contraste sobre blanco */
+.projects-modal.theme-light .projects-close-btn {
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.projects-modal.theme-dark .projects-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.projects-modal.theme-light .projects-close-btn:hover {
+  background: rgba(0, 0, 0, 0.72);
+  transform: rotate(90deg);
+}
+
+/* Las reglas theme-light / theme-dark de arriba son el FALLBACK (sin origen).
+   Cuando el modal se abre desde header/footer, el FONDO lo decide el origen
+   (.from-header = claro, .from-footer = oscuro), así que el contraste de TODOS
+   los controles se ajusta por origen más abajo (sección "Contraste de
+   controles según el fondo"). Antes los overrides de origen forzaban blanco
+   sobre blanco y dejaban el botón invisible. */
+
+/* Color del botón detalle según tema */
+.projects-modal.theme-dark .project-detail-close-btn {
+  background: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.projects-modal.theme-light .project-detail-close-btn {
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+}
+
+.project-detail-close-btn:hover {
+  transform: rotate(90deg);
+}
+
+.projects-modal.theme-dark .project-detail-close-btn:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.projects-modal.theme-light .project-detail-close-btn:hover {
+  background: rgba(0, 0, 0, 0.72);
+}
+
+/* Header del modal */
+.projects-modal-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  animation: fadeInDown 0.8s ease;
+}
+
+.projects-modal-header h1 {
+  font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 500; /* Gotham Medium para títulos */
+  letter-spacing: 4px;
+  margin-bottom: 1rem;
+  transition: color 0.3s ease;
+}
+
+.projects-modal-header p {
+  font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 400; /* Gotham Book para body text */
+  opacity: 0.8;
+  transition: color 0.3s ease;
+}
+
+/* KOA (negro) → texto blanco */
+.projects-modal.theme-dark .projects-modal-header h1,
+.projects-modal.theme-dark .projects-modal-header p {
+  color: #fff;
+}
+
+/* KOI (blanco) → texto negro */
+.projects-modal.theme-light .projects-modal-header h1,
+.projects-modal.theme-light .projects-modal-header p {
+  color: #000;
+}
+
+/* from-header → KOI → texto negro */
+.projects-modal.from-header .projects-modal-header h1,
+.projects-modal.from-header .projects-modal-header p {
+  color: #000 !important;
+}
+
+/* from-footer → KOA → texto blanco */
+.projects-modal.from-footer .projects-modal-header h1,
+.projects-modal.from-footer .projects-modal-header p {
+  color: #fff !important;
+}
+
+/* Grid de proyectos - 10 columnas */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 0.8rem;
+  animation: fadeIn 1s ease 0.2s backwards;
+}
+
+/* Project Card */
+.project-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #111;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  cursor: pointer;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+
+  /* Estado inicial - invisible para el efecto pop */
+  opacity: 0;
+  transform: translateY(12px) scale(0.92);
+}
+
+/* Efecto de entrada con pop */
+.project-card.pop-in {
+  animation: popIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.project-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.8s ease, filter 0.8s ease;
+}
+
+.project-card .card-overlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Overlay para tarjetas KOI (fondo blanco con blur) */
+.project-card[data-empresa="KOI"] .card-overlay {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+/* Overlay para tarjetas KOA (fondo negro con blur) */
+.project-card[data-empresa="KOA"] .card-overlay {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.project-card:hover .card-overlay {
+  opacity: 1;
+}
+
+.project-card:hover img {
+  transform: scale(1.1);
+  filter: brightness(0.8);
+}
+
+.project-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 0.8rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* Texto negro para tarjetas KOI */
+.project-card[data-empresa="KOI"] .project-info {
+  color: #000;
+}
+
+/* Texto blanco para tarjetas KOA */
+.project-card[data-empresa="KOA"] .project-info {
+  color: #fff;
+}
+
+.project-card:hover .project-info {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.project-info h3 {
+  margin: 0 0 0.3rem 0;
+  font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500; /* Gotham Medium para títulos */
+  letter-spacing: 0.5px;
+}
+
+.project-info p {
+  margin: 0;
+  font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 300; /* Gotham Light para labels/UI */
+  opacity: 0.9;
+}
+
+/* KOA / KOI Disabled States */
+.project-card.disabled {
+  cursor: pointer;
+  /* sin filter ni opacity — imagen al 100% */
+}
+
+/* Misma animación pop que los activos */
+.project-card.disabled.pop-in {
+  animation: popIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Layer siempre visible + texto en hover */
+.project-card.disabled::after {
+  content: attr(data-empresa-disabled);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  color: transparent;       /* texto oculto por defecto */
+  z-index: 20;
+  transition: color 0.35s ease;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* KOI bloqueado → layer blanco, texto negro */
+.project-card.disabled[data-empresa="KOI"]::after {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* KOA bloqueado → layer negro, texto blanco */
+.project-card.disabled[data-empresa="KOA"]::after {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* Hover: mostrar texto */
+.project-card.disabled[data-empresa="KOI"]:hover::after {
+  color: #000;
+}
+
+.project-card.disabled[data-empresa="KOA"]:hover::after {
+  color: #fff;
+}
+
+/* Key Icon */
+.key-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #fff;
+  font-size: 0.9rem;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  z-index: 10;
+}
+
+.project-card:hover .key-icon {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* =====================================================
+   PLACEHOLDERS PARA COMPLETAR GRID
+   ===================================================== */
+
+.project-placeholder {
+  position: relative;
+  border-radius: 6px;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: all 0.4s ease;
+  cursor: default;
+}
+
+/* Placeholder tema Dark (KOA) - Fondo negro con sombra blanca */
+.project-placeholder.theme-dark {
+  background: rgba(0, 0, 0, 1);
+  box-shadow:
+    0 4px 15px rgba(255, 255, 255, 0.15),
+    0 2px 8px rgba(255, 255, 255, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Placeholder tema Light (KOI) - Fondo blanco con sombra negra */
+.project-placeholder.theme-light {
+  background: rgba(255, 255, 255, 1);
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+/* Pantalla de acceso con código */
+.access-screen {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  padding: 3rem 2rem;
+  width: 100%;
+  max-width: 600px;
+}
+
+.access-screen h2 {
+  font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 2rem;
+  font-weight: 500; /* Gotham Medium para títulos */
+  margin-bottom: 1rem;
+  transition: color 0.3s ease;
+}
+
+.access-screen p {
+  font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 400; /* Gotham Book para body text */
+  margin-bottom: 2rem;
+  opacity: 0.8;
+  transition: color 0.3s ease;
+}
+
+.access-screen input {
+  margin-top: 1rem;
+  padding: 1rem 1.5rem;
+  font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 400; /* Gotham Book para body text */
+  border: none;
+  outline: none;
+  text-align: center;
+  letter-spacing: 8px;
+  border-radius: 8px;
+  transition: background 0.3s, color 0.3s;
+  max-width: 300px;
+  width: 100%;
+}
+
+/* Colores para tema dark (fondo negro) */
+.projects-modal.theme-dark .access-screen h2,
+.projects-modal.theme-dark .access-screen p {
+  color: #fff;
+}
+
+.projects-modal.theme-dark .access-screen input {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.projects-modal.theme-dark .access-screen input:focus {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Colores para tema light (fondo blanco) */
+.projects-modal.theme-light .access-screen h2,
+.projects-modal.theme-light .access-screen p {
+  color: #000;
+}
+
+.projects-modal.theme-light .access-screen input {
+  background: rgba(0, 0, 0, 0.1);
+  color: #000;
+}
+
+.projects-modal.theme-light .access-screen input:focus {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.error-msg {
+  color: #ff4d4d;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  display: block;
+}
+
+/* Galería de proyecto individual - Animaciones popup */
+.gallery-screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;       /* centra verticalmente */
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  z-index: 100;
+}
+
+.gallery-screen.show {
+  display: flex !important;
+  opacity: 1 !important;
+  transform: scale(1) !important;
+}
+
+.gallery-screen.hide {
+  opacity: 0;
+  transform: scale(0.97);
+}
+
+/* =====================================================
+   FULLSCREEN PEEK CAROUSEL — Swiper.js
+   ===================================================== */
+
+/* Carousel: ocupa todo el ancho, altura rectangular centrada */
+.peek-carousel {
+  width: 100%;
+  height: 56vh;    /* rectangular / landscape */
+}
+
+/* Cada slide — mismo alto que el carousel, ancho landscape */
+.peek-carousel .swiper-slide {
+  width: 68vw;
+  height: 100%;
+  overflow: hidden;
+  transition: filter 0.45s ease, opacity 0.45s ease;
+  filter: brightness(0.4);
+  opacity: 0.75;
+}
+
+.peek-carousel .swiper-slide-active {
+  filter: brightness(1);
+  opacity: 1;
+}
+
+.peek-carousel .swiper-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Flechas — override Swiper defaults */
+.peek-carousel .swiper-button-prev,
+.peek-carousel .swiper-button-next {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
+  transition: background 0.3s ease, transform 0.2s ease;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.peek-carousel .swiper-button-prev::after,
+.peek-carousel .swiper-button-next::after {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.peek-carousel .swiper-button-prev { left:  1.4rem; }
+.peek-carousel .swiper-button-next { right: 1.4rem; }
+
+/* Colores según tema */
+.projects-modal.theme-dark .peek-carousel .swiper-button-prev,
+.projects-modal.theme-dark .peek-carousel .swiper-button-next {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  --swiper-navigation-color: #fff;
+}
+
+/* KOI (blanco) → círculo oscuro + ícono blanco para contraste sobre blanco y foto */
+.projects-modal.theme-light .peek-carousel .swiper-button-prev,
+.projects-modal.theme-light .peek-carousel .swiper-button-next {
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  --swiper-navigation-color: #fff;
+}
+
+.projects-modal.theme-dark .peek-carousel .swiper-button-prev:hover,
+.projects-modal.theme-dark .peek-carousel .swiper-button-next:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.projects-modal.theme-light .peek-carousel .swiper-button-prev:hover,
+.projects-modal.theme-light .peek-carousel .swiper-button-next:hover {
+  background: rgba(0, 0, 0, 0.72);
+}
+
+/* ================================================================
+   Contraste de controles según el fondo del modal.
+   El fondo lo decide el ORIGEN (from-header = claro, from-footer =
+   oscuro) con !important, por encima del brand. Los controles (X y
+   flechas) deben seguir ese mismo eje, no el brand, para no quedar
+   invisibles (p.ej. blanco sobre blanco). Por eso usamos !important.
+================================================================ */
+
+/* Fondo CLARO (origen header) → círculo oscuro + ícono blanco */
+.projects-modal.from-header .projects-close-btn,
+.projects-modal.from-header .project-detail-close-btn,
+.projects-modal.from-header .peek-carousel .swiper-button-prev,
+.projects-modal.from-header .peek-carousel .swiper-button-next {
+  background: rgba(0, 0, 0, 0.55) !important;
+  color: #fff !important;
+  --swiper-navigation-color: #fff;
+}
+.projects-modal.from-header .projects-close-btn:hover,
+.projects-modal.from-header .project-detail-close-btn:hover,
+.projects-modal.from-header .peek-carousel .swiper-button-prev:hover,
+.projects-modal.from-header .peek-carousel .swiper-button-next:hover {
+  background: rgba(0, 0, 0, 0.72) !important;
+}
+
+/* Fondo OSCURO (origen footer) → círculo claro + ícono blanco */
+.projects-modal.from-footer .projects-close-btn,
+.projects-modal.from-footer .project-detail-close-btn,
+.projects-modal.from-footer .peek-carousel .swiper-button-prev,
+.projects-modal.from-footer .peek-carousel .swiper-button-next {
+  background: rgba(255, 255, 255, 0.22) !important;
+  color: #fff !important;
+  --swiper-navigation-color: #fff;
+}
+.projects-modal.from-footer .projects-close-btn:hover,
+.projects-modal.from-footer .project-detail-close-btn:hover,
+.projects-modal.from-footer .peek-carousel .swiper-button-prev:hover,
+.projects-modal.from-footer .peek-carousel .swiper-button-next:hover {
+  background: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Efecto pop elegante para tarjetas de proyectos */
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Efecto pop para tarjetas deshabilitadas (opacity final de 0.4) */
+@keyframes popInDisabled {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.92);
+  }
+  100% {
+    opacity: 0.4;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Hidden utility */
+.hidden {
+  display: none !important;
+}
+
+/* Responsive */
+
+/* Desktop grande (1600px+) - 10 columnas */
+@media (min-width: 1600px) {
+  .projects-grid {
+    grid-template-columns: repeat(10, 1fr);
+    gap: 0.8rem;
+  }
+}
+
+/* Desktop medio (1200px - 1599px) - 8 columnas */
+@media (max-width: 1599px) and (min-width: 1200px) {
+  .projects-grid {
+    grid-template-columns: repeat(8, 1fr);
+    gap: 0.8rem;
+  }
+}
+
+/* Tablets landscape (1024px - 1199px) - 6 columnas */
+@media (max-width: 1199px) and (min-width: 1024px) {
+  .projects-modal {
+    inset: 0;
+  }
+
+  .projects-grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.8rem;
+  }
+
+  .projects-modal-header h1 {
+    font-size: 2rem;
+  }
+
+
+  .filmstrip-thumb {
+    width: 20vw;
+  }
+}
+
+/* Tablets portrait (768px - 1023px) - 5 columnas */
+@media (max-width: 1023px) and (min-width: 768px) {
+  .projects-modal {
+    inset: 0;
+  }
+
+  .projects-modal-content {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .projects-close-btn,
+  .project-detail-close-btn {
+    top: 15px;
+    right: 15px;
+    width: 42px;
+    height: 42px;
+    font-size: 1.5rem;
+  }
+
+  .projects-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.7rem;
+  }
+
+  .projects-modal-header h1 {
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+  }
+
+  .projects-modal-header p {
+    font-size: 1rem;
+  }
+
+  .peek-carousel { height: 52vh; }
+  .peek-carousel .swiper-slide { width: 74vw; }
+}
+
+/* Móviles landscape / tablets pequeñas (480px - 767px) - 3 columnas */
+@media (max-width: 767px) and (min-width: 480px) {
+  .projects-modal {
+    inset: 0;
+  }
+
+  .projects-modal-content,
+  .project-detail-content {
+    padding: 2rem 1rem;
+  }
+
+  .projects-close-btn,
+  .project-detail-close-btn {
+    top: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    font-size: 1.4rem;
+  }
+
+  .projects-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+  }
+
+  .projects-modal-header h1 {
+    font-size: 1.6rem;
+    letter-spacing: 2px;
+    margin-bottom: 0.8rem;
+  }
+
+  .projects-modal-header p {
+    font-size: 0.95rem;
+  }
+
+  .peek-carousel { height: 46vh; }
+  .peek-carousel .swiper-slide { width: 84vw; }
+
+  .project-info h3 { font-size: 0.75rem; }
+  .project-info p  { font-size: 0.65rem; }
+}
+
+/* Móviles portrait (hasta 479px) - 2 columnas */
+@media (max-width: 479px) {
+  .projects-modal,
+  .project-detail-modal {
+    inset: 0;
+  }
+
+  .projects-modal-content,
+  .project-detail-content {
+    padding: 1.5rem 1rem;
+  }
+
+  .projects-close-btn,
+  .project-detail-close-btn {
+    top: 10px;
+    right: 10px;
+    width: 38px;
+    height: 38px;
+    font-size: 1.3rem;
+  }
+
+  .projects-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .projects-modal-header h1 {
+    font-size: 1.4rem;
+    letter-spacing: 1.5px;
+    margin-bottom: 0.6rem;
+  }
+
+  .projects-modal-header p {
+    font-size: 0.9rem;
+  }
+
+  .peek-carousel { height: 42vh; }
+  .peek-carousel .swiper-slide { width: 90vw; }
+
+  .carousel-arrow {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+
+  .access-screen input {
+    font-size: 1.2rem;
+    padding: 0.8rem 1rem;
+  }
+
+  .project-info h3 {
+    font-size: 0.7rem;
+  }
+
+  .project-info p {
+    font-size: 0.6rem;
+  }
+
+  .project-card.disabled::after {
+    font-size: 0.65rem;
+  }
+}

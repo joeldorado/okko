@@ -1,0 +1,309 @@
+/* ===================================
+   CONTACTO - FORMULARIO
+=================================== */
+
+.contact-form {
+  width: 100%;
+}
+
+.contact-form h2 {
+  font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 32px;
+  font-weight: 500; /* Gotham Medium para títulos */
+  letter-spacing: 4px;
+  margin-bottom: 20px;
+}
+
+.contact-form label {
+  display: block;
+  margin-top: 1rem;
+  font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 300; /* Gotham Light para labels/UI */
+  opacity: 0.9;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  margin-top: 0.3rem;
+  border: none;
+  border-bottom: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 400; /* Gotham Book para body text */
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: currentColor;
+  opacity: 1;
+}
+
+.contact-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.contact-error-text {
+  color: #ff6767;
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  display: block;
+  height: 1rem;
+}
+
+.contact-error-text.active {
+  opacity: 1;
+}
+
+.contact-form button {
+  margin-top: 1.5rem;
+  background: currentColor;
+  border: none;
+  padding: 0.7rem 1.8rem;
+  font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700; /* Gotham Bold para CTA */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Invertir colores del botón según el tema */
+.about-light .contact-form button {
+  background: #000;
+  color: #fff;
+}
+
+.about-dark .contact-form button {
+  background: #fff;
+  color: #000;
+}
+
+.contact-form button:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+.contact-form button:active {
+  transform: scale(0.98);
+}
+
+/* Mensaje de éxito */
+.contact-success-msg {
+  position: absolute;
+  top: -80px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  width: fit-content;
+  padding: 1rem 2rem;
+  border-radius: 40px;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  font-size: 0.9rem;
+  letter-spacing: 0.4px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.about-light .contact-success-msg {
+  background: #000;
+  color: #fff;
+}
+
+.about-dark .contact-success-msg {
+  background: #fff;
+  color: #000;
+}
+
+.contact-success-msg.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.checkmark-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.checkmark {
+  width: 46px;
+  height: 46px;
+  stroke-width: 3;
+  stroke-miterlimit: 10;
+  animation: fill 0.4s ease-in-out 0.8s forwards, scale 0.3s ease-in-out 1.2s both;
+}
+
+.about-light .checkmark {
+  stroke: #fff;
+}
+
+.about-dark .checkmark {
+  stroke: #000;
+}
+
+.checkmark-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 3;
+  stroke-miterlimit: 10;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+}
+
+@keyframes stroke {
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes scale {
+  0%, 100% { transform: none; }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes fill {
+  100% {
+    box-shadow: inset 0px 0px 0px 30px currentColor;
+  }
+}
+
+/* Mensaje de error */
+.contact-error-msg {
+  position: absolute;
+  top: -80px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  width: fit-content;
+  background: #ff4d4d;
+  color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 40px;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  font-size: 0.9rem;
+  letter-spacing: 0.4px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.contact-error-msg.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.cross-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.cross {
+  width: 46px;
+  height: 46px;
+  stroke: #fff;
+  stroke-width: 3;
+  stroke-miterlimit: 10;
+}
+
+.cross-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.cross-line {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+}
+
+/* ===================================
+   RESPONSIVE
+=================================== */
+
+@media screen and (max-width: 768px) {
+  .contact-form h2 {
+    font-size: 24px;
+    letter-spacing: 3px;
+  }
+
+  .contact-form label {
+    font-size: 0.85rem;
+  }
+
+  .contact-form input,
+  .contact-form textarea {
+    font-size: 0.9rem;
+  }
+
+  .contact-success-msg,
+  .contact-error-msg {
+    top: -70px;
+    padding: 0.8rem 1.5rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .contact-form h2 {
+    font-size: 20px;
+    letter-spacing: 2px;
+  }
+
+  .contact-form label {
+    font-size: 0.8rem;
+    margin-top: 0.8rem;
+  }
+
+  .contact-form input,
+  .contact-form textarea {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.6rem;
+  }
+
+  .contact-form button {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.5rem;
+  }
+
+  .contact-success-msg,
+  .contact-error-msg {
+    top: -60px;
+    padding: 0.7rem 1.2rem;
+    font-size: 0.8rem;
+  }
+
+  .checkmark,
+  .cross {
+    width: 40px;
+    height: 40px;
+  }
+}

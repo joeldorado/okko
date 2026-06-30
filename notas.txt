@@ -1,0 +1,30 @@
+⚙️ OPCIÓN 2 — Optimización local + lazy load (sin servicios externos)
+
+Si prefieres mantener todo dentro de tu servidor Laravel o web simple:
+
+Optimiza las imágenes antes de subirlas:
+
+Usa herramientas como Squoosh
+ o TinyPNG
+.
+
+Exporta en WebP (pesa ~70 % menos).
+
+Carga progresiva (lazy load):
+
+<img src="/images/cocina.webp" alt="Cocina Okko" loading="lazy">
+Usa srcset y sizes para responsive images:
+
+<img
+  src="/images/cocina-1600.webp"
+  srcset="/images/cocina-800.webp 800w, /images/cocina-1200.webp 1200w, /images/cocina-1600.webp 1600w"
+  sizes="(max-width: 768px) 100vw, 50vw"
+  alt="Cocina Okko"
+  loading="lazy">
+
+
+
+opcion 3
+hibrida con unsplash:
+
+https://images.unsplash.com/photo-1505843513577-22bb7d21e455?auto=format&fit=crop&w=1600&q=80
