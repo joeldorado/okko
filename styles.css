@@ -58,6 +58,11 @@
   --bg-color: #000;
   --logo-color: #fff;
   --font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --bar-h: 115px; /* alto de header/footer — sincroniza la banda de Proyectos */
+}
+
+@media (max-width: 768px) {
+  :root { --bar-h: 60px; }
 }
 
 /* ============================================
@@ -104,7 +109,7 @@ body {
   left: 70%;
 
   font-family: var(--font-family);
-  font-size: 50px;
+  font-size: clamp(1.9rem, 5.2vmin, 3rem);
   font-weight: 500; /* Gotham Medium */
   letter-spacing: 1.87vmin;
   margin: 0;
@@ -375,46 +380,62 @@ body {
   }
 }
 
-/* KOA — bottom-left del icono del logo */
+/* KOA — esquina inferior-izquierda del icono del logo */
 .label-top {
   position: absolute;
-  top: 62%;           /* ajusta con top para subir/bajar */
-  left: -5%;          /* ajusta con left para mover izq/der */
-  transform: none;
+  /* Fallback sin JS — JS (LABEL_ANCHORS) sobreescribe top/left de forma responsive */
+  top: 58%;
+  left: 16%;
   font-family: var(--font-family);
-  font-size: 5vmin;   /* escala con el viewport */
+  font-size: clamp(0.95rem, 3.4vmin, 1.9rem);   /* escala con el viewport, un solo clamp */
   font-weight: 700;
   opacity: 0;
   z-index: 1000;
-  transition: opacity 1.8s ease;
+  transition: opacity 1.8s ease, transform 0.8s ease-in-out;
   pointer-events: none;
 }
 
 /* KOI — top-right del icono del logo */
 .label-bottom {
   position: absolute;
-  top: 30%;           /* ajusta con top para subir/bajar */
-  left: 75%;          /* ajusta con left para mover izq/der */
-  transform: none;
+  /* Fallback sin JS — JS (LABEL_ANCHORS) sobreescribe top/right de forma responsive */
+  top: 30%;
+  right: 16%;   /* espejo de KOA: borde derecho a 16% del logo */
+  left: auto;
   font-family: var(--font-family);
-  font-size: 5vmin;   /* escala con el viewport */
+  font-size: clamp(0.95rem, 3.4vmin, 1.9rem);   /* escala con el viewport, un solo clamp */
   font-weight: 700;
   opacity: 0;
   z-index: 1000;
-  transition: opacity 1.8s ease;
+  transition: opacity 1.8s ease, transform 0.8s ease-in-out;
   pointer-events: none;
+}
+
+/* Hero responsive — la posición de los labels la calcula JS (positionDiagonalLabels)
+   a partir del tamaño medido del logo, así que ya no hay magic numbers por breakpoint. */
+
+/* Sonido — target táctil cómodo en el ícono del altavoz */
+#musicHeader,
+#musicFooter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 /* Cuando el mouse está ARRIBA → se ve KOI (parte de abajo) */
 .stage.top #labelBottom {
   opacity: 1;
   color: #000;
+  transform: translateX(20px);  /* sigue el desplazamiento del logo */
 }
 
 /* Cuando el mouse está ABAJO → se ve KOA (parte de arriba) */
 .stage.bottom #labelTop {
   opacity: 1;
   color: #fff;
+  transform: translateX(-20px); /* sigue el desplazamiento del logo */
 }
 
 /* Contenedor interno que ocupa toda la diagonal */
@@ -446,6 +467,22 @@ body {
   pointer-events: none !important;
 
   animation: diagonalReveal 5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* === Cover slide del cambio de tema (KOI <-> KOA) ===
+   El entrante se desliza encima del saliente vía --slideX (tweeneada por GSAP,
+   porque el transform de .diagonal.expand lleva !important). */
+.diagonal.expand.theme-sliding {
+  /* translateX ANTES de scale para que 100vw no se multiplique por 1.05 */
+  transform: translate(0, 0) translateX(var(--slideX, 0vw)) scale(1.05) !important;
+  transition: none !important;
+  animation: none !important;
+  will-change: transform;
+}
+
+.diagonal.expand.theme-incoming {
+  z-index: 3 !important; /* encima del saliente (z-index 1) */
+  box-shadow: 0 0 80px rgba(0, 0, 0, 0.35);
 }
 
 /* Diagonal inactiva (oculta) */
@@ -765,7 +802,7 @@ body {
 .nav-menu a {
   text-decoration: none;
   font-family: var(--font-family);
-  font-size: 1.5rem;
+  font-size: clamp(0.95rem, 0.6rem + 0.75vw, 1.35rem);
   font-weight: 300; /* Gotham Light para menú principal */
   transition: opacity 0.3s ease;
   display: block;
@@ -899,34 +936,42 @@ body {
   }
 }
 
+/* Pantallas pequeñas: evitar overflow horizontal del nav con muchos ítems */
+@media (max-width: 480px) {
+  .main-header,
+  .main-footer {
+    padding: 0 0.9rem;
+  }
+
+  .nav-menu {
+    gap: 0.6rem;
+  }
+
+  .nav-menu a {
+    font-size: 0.78rem;
+    padding: 0.35rem 0;
+  }
+
+  .lang-btn {
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+  }
+
+  .header-logo-img,
+  .footer-logo-img {
+    height: 26px;
+  }
+
+  .logo-project-name {
+    font-size: 0.8rem;
+  }
+}
+
 /* ============================================
-   MODAL DE PROYECTOS - FULLSCREEN
+   PROYECTOS — el layout vive en proyectos.css
+   (regla legacy fullscreen eliminada; Proyectos
+    ahora ocupa la banda entre header y footer)
    ============================================ */
-
-.projects-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.98);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 20000;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.6s ease, visibility 0.6s ease;
-  overflow-y: auto;
-}
-
-.projects-modal.active {
-  opacity: 1;
-  visibility: visible;
-}
-
-.projects-modal.closing {
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
 
 .hidden {
   display: none !important;

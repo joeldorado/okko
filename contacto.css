@@ -8,7 +8,7 @@
 
 .contact-form h2 {
   font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 32px;
+  font-size: clamp(1.4rem, 1rem + 1.6vw, 2rem);
   font-weight: 500; /* Gotham Medium para títulos */
   letter-spacing: 4px;
   margin-bottom: 20px;

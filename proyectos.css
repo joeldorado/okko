@@ -2,26 +2,45 @@
    ESTILOS PARA MODAL DE PROYECTOS - DOS NIVELES
    ===================================================== */
 
-/* NIVEL 1 - Modal Principal (Grid de Proyectos) - Centrado entre Header/Footer */
+/* NIVEL 1 - Proyectos como banda entre Header y Footer (no fullscreen) */
 .projects-modal {
   position: fixed;
-  inset: 0;
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  z-index: 20000;  /* por encima de header (z-index: 20) y footer */
+  top: var(--bar-h, 115px);     /* deja ver el header */
+  bottom: var(--bar-h, 115px);  /* deja ver el footer */
+  left: 0;
+  right: 0;
+  backdrop-filter: blur(20px) saturate(135%);
+  -webkit-backdrop-filter: blur(20px) saturate(135%);
+  z-index: 9500;  /* debajo de header/footer (10000): quedan visibles y clicables */
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.6s ease, visibility 0.6s ease, background 0.6s ease;
+  transform: translateX(0);
+  transition: opacity 0.6s ease, visibility 0.6s ease, background 0.6s ease,
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              top 0.55s cubic-bezier(0.4, 0, 0.2, 1), bottom 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
   overflow: hidden;
   /* Sin flex — el track se posiciona con position: relative/absolute */
 }
 
-/* Tema Dark (KOA) - Fondo negro */
-.projects-modal.theme-dark {
-  background: rgba(0, 0, 0, 0.72);
+/* Detalle = galería fullscreen inmersiva (tapa header/footer) */
+.projects-modal.detail-active {
+  top: 0;
+  bottom: 0;
+  z-index: 10001; /* por encima de header/footer (10000) */
+}
+.projects-modal.detail-active .project-detail-close-btn {
+  top: 24px;
+  right: 24px;
 }
 
-/* Tema Light (KOI) - Fondo blanco */
+/* Tema Dark (KOA) - glass oscuro pero legible (menos negro) */
+.projects-modal.theme-dark {
+  background: rgba(20, 20, 22, 0.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Tema Light (KOI) - glass claro */
 .projects-modal.theme-light {
   background: rgba(255, 255, 255, 0.72);
 }
@@ -31,15 +50,21 @@
   background: rgba(255, 255, 255, 0.72) !important;
 }
 
-/* Override: Footer → KOA → negro */
+/* Override: Footer → KOA → glass oscuro legible */
 .projects-modal.from-footer {
-  background: rgba(0, 0, 0, 0.72) !important;
+  background: rgba(20, 20, 22, 0.5) !important;
 }
 
 .projects-modal.active {
   opacity: 1;
   visibility: visible;
 }
+
+/* Aparcado fuera de pantalla según origen mientras NO está activo → slide de entrada.
+   header (KOI) entra desde la izquierda; footer (KOA) desde la derecha. */
+.projects-modal.from-header:not(.active) { transform: translateX(-100%); }
+.projects-modal.from-footer:not(.active) { transform: translateX(100%); }
+.projects-modal.active { transform: translateX(0); }
 
 .projects-modal.closing {
   opacity: 0;
@@ -82,7 +107,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* "safe center": centra cuando cabe, alinea arriba al desbordar (no recorta el título) */
+  justify-content: safe center;
 }
 
 /* Panel 2 — detalle fuera de pantalla a la derecha por defecto */
@@ -124,18 +150,18 @@
   transition: opacity 0.3s ease, background 0.3s ease, transform 0.3s ease;
 }
 
-/* Botón cerrar - Modal Principal */
+/* Botón cerrar principal — oculto: se sale por logo/menú (decisión del cliente) */
 .projects-close-btn {
-  background: rgba(255, 255, 255, 0.1);
-  opacity: 1;
-  pointer-events: auto;
+  display: none !important;
 }
 
-/* Botón detalle — oculto por defecto */
+/* Botón volver (galería → grid) — dentro de la banda, bajo el header */
 .project-detail-close-btn {
   background: rgba(255, 255, 255, 0.3);
   opacity: 0;
   pointer-events: none;
+  top: calc(var(--bar-h, 115px) + 16px);
+  z-index: 9600; /* sobre el modal (9500), bajo header/footer (10000) */
 }
 
 /* Cuando el detalle está activo: ocultar X principal, mostrar X detalle */
@@ -211,7 +237,7 @@
 
 .projects-modal-header h1 {
   font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 2.5rem;
+  font-size: clamp(1.5rem, 1rem + 2vw, 2.5rem);
   font-weight: 500; /* Gotham Medium para títulos */
   letter-spacing: 4px;
   margin-bottom: 1rem;
@@ -250,11 +276,102 @@
   color: #fff !important;
 }
 
-/* Grid de proyectos - 10 columnas */
+/* =====================================================
+   BARRA DE FILTROS POR CATEGORÍA
+   ===================================================== */
+.projects-filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: -1.2rem auto 2.4rem;   /* sube un poco bajo el header */
+  animation: fadeIn 0.8s ease 0.1s backwards;
+}
+
+.filter-btn {
+  font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 0.5rem 1.15rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: color 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Fallback por brand — fondo CLARO (KOI) */
+.projects-modal.theme-light .filter-btn {
+  color: rgba(0, 0, 0, 0.55);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+.projects-modal.theme-light .filter-btn:hover {
+  color: #000;
+  border-color: rgba(0, 0, 0, 0.4);
+}
+.projects-modal.theme-light .filter-btn.active {
+  color: #fff;
+  background: #111;
+  border-color: #111;
+}
+
+/* Fallback por brand — fondo OSCURO (KOA) */
+.projects-modal.theme-dark .filter-btn {
+  color: rgba(255, 255, 255, 0.6);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.projects-modal.theme-dark .filter-btn:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+.projects-modal.theme-dark .filter-btn.active {
+  color: #111;
+  background: #fff;
+  border-color: #fff;
+}
+
+/* El ORIGEN manda (header=claro, footer=oscuro) por encima del brand */
+.projects-modal.from-header .filter-btn {
+  color: rgba(0, 0, 0, 0.55) !important;
+  background: transparent !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+.projects-modal.from-header .filter-btn:hover {
+  color: #000 !important;
+  border-color: rgba(0, 0, 0, 0.4) !important;
+}
+.projects-modal.from-header .filter-btn.active {
+  color: #fff !important;
+  background: #111 !important;
+  border-color: #111 !important;
+}
+.projects-modal.from-footer .filter-btn {
+  color: rgba(255, 255, 255, 0.6) !important;
+  background: transparent !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.projects-modal.from-footer .filter-btn:hover {
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+.projects-modal.from-footer .filter-btn.active {
+  color: #111 !important;
+  background: #fff !important;
+  border-color: #fff !important;
+}
+
+/* Grid de proyectos — catálogo real (pocas cards): tarjetas de tamaño fijo,
+   centradas, que crecen con el catálogo sin estirarse cuando hay pocas. */
 .projects-grid {
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 0.8rem;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 230px));
+  justify-content: center;
+  gap: 1.1rem;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
   animation: fadeIn 1s ease 0.2s backwards;
 }
 
@@ -296,14 +413,23 @@
   -webkit-backdrop-filter: blur(8px);
 }
 
-/* Overlay para tarjetas KOI (fondo blanco con blur) */
-.project-card[data-empresa="KOI"] .card-overlay {
+/* Overlay según el fondo del modal. Fallback por brand (theme-*)… */
+.projects-modal.theme-light .project-card .card-overlay {
   background: rgba(255, 255, 255, 0.75);
 }
-
-/* Overlay para tarjetas KOA (fondo negro con blur) */
-.project-card[data-empresa="KOA"] .card-overlay {
-  background: rgba(0, 0, 0, 0.75);
+.projects-modal.theme-dark .project-card .card-overlay {
+  background: rgba(12, 12, 14, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+/* …pero el ORIGEN manda (header=claro, footer=oscuro), igual que en el resto
+   del modal: el brand puede quedar en theme-dark aunque el fondo sea claro. */
+.projects-modal.from-header .project-card .card-overlay {
+  background: rgba(255, 255, 255, 0.75) !important;
+  box-shadow: none !important;
+}
+.projects-modal.from-footer .project-card .card-overlay {
+  background: rgba(12, 12, 14, 0.55) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
 }
 
 .project-card:hover {
@@ -331,15 +457,11 @@
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
-/* Texto negro para tarjetas KOI */
-.project-card[data-empresa="KOI"] .project-info {
-  color: #000;
-}
-
-/* Texto blanco para tarjetas KOA */
-.project-card[data-empresa="KOA"] .project-info {
-  color: #fff;
-}
+/* Texto de la card — brand como fallback, origen manda con !important */
+.projects-modal.theme-light .project-card .project-info { color: #000; }
+.projects-modal.theme-dark  .project-card .project-info { color: #fff; }
+.projects-modal.from-header .project-card .project-info { color: #000 !important; }
+.projects-modal.from-footer .project-card .project-info { color: #fff !important; }
 
 .project-card:hover .project-info {
   opacity: 1;
@@ -360,75 +482,6 @@
   font-size: 0.7rem;
   font-weight: 300; /* Gotham Light para labels/UI */
   opacity: 0.9;
-}
-
-/* KOA / KOI Disabled States */
-.project-card.disabled {
-  cursor: pointer;
-  /* sin filter ni opacity — imagen al 100% */
-}
-
-/* Misma animación pop que los activos */
-.project-card.disabled.pop-in {
-  animation: popIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-/* Layer siempre visible + texto en hover */
-.project-card.disabled::after {
-  content: attr(data-empresa-disabled);
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 1rem;
-  font-weight: 600;
-  letter-spacing: 8px;
-  text-transform: uppercase;
-  color: transparent;       /* texto oculto por defecto */
-  z-index: 20;
-  transition: color 0.35s ease;
-  pointer-events: none;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-
-/* KOI bloqueado → layer blanco, texto negro */
-.project-card.disabled[data-empresa="KOI"]::after {
-  background: rgba(255, 255, 255, 0.7);
-}
-
-/* KOA bloqueado → layer negro, texto blanco */
-.project-card.disabled[data-empresa="KOA"]::after {
-  background: rgba(0, 0, 0, 0.7);
-}
-
-/* Hover: mostrar texto */
-.project-card.disabled[data-empresa="KOI"]:hover::after {
-  color: #000;
-}
-
-.project-card.disabled[data-empresa="KOA"]:hover::after {
-  color: #fff;
-}
-
-/* Key Icon */
-.key-icon {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  color: #fff;
-  font-size: 0.9rem;
-  opacity: 0;
-  transform: translateY(-8px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-  z-index: 10;
-}
-
-.project-card:hover .key-icon {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 /* =====================================================
@@ -576,24 +629,31 @@
    FULLSCREEN PEEK CAROUSEL — Swiper.js
    ===================================================== */
 
-/* Carousel: ocupa todo el ancho, altura rectangular centrada */
+/* Carousel: ocupa la galería, imagen centrada en banda (no fullscreen crop) */
 .peek-carousel {
   width: 100%;
-  height: 56vh;    /* rectangular / landscape */
+  height: 100%;
 }
 
-/* Cada slide — mismo alto que el carousel, ancho landscape */
+/* Centra verticalmente los slides de altura fija dentro del wrapper de Swiper */
+.peek-carousel .swiper-wrapper {
+  align-items: center;
+}
+
+/* Cada slide — banda landscape 16:9: se ve la FOTO COMPLETA, con peek del vecino.
+   El alto define el ancho vía aspect-ratio; el cap por vw evita que sea gigante. */
 .peek-carousel .swiper-slide {
-  width: 68vw;
-  height: 100%;
+  width: auto;
+  height: min(64vh, 50.6vw);   /* 50.6vw = (90vw)*9/16 → ancho máx ~90vw */
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   transition: filter 0.45s ease, opacity 0.45s ease;
-  filter: brightness(0.4);
-  opacity: 0.75;
+  filter: brightness(0.62);    /* peek suave (antes 0.4) para acercarse a 1.png */
+  opacity: 0.85;
 }
 
 .peek-carousel .swiper-slide-active {
-  filter: brightness(1);
+  filter: none;
   opacity: 1;
 }
 
@@ -749,31 +809,23 @@
 
 /* Responsive */
 
-/* Desktop grande (1600px+) - 10 columnas */
+/* Desktop grande (1600px+) — tarjetas un poco más grandes */
 @media (min-width: 1600px) {
   .projects-grid {
-    grid-template-columns: repeat(10, 1fr);
-    gap: 0.8rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 240px));
+    gap: 1.2rem;
   }
 }
 
-/* Desktop medio (1200px - 1599px) - 8 columnas */
-@media (max-width: 1599px) and (min-width: 1200px) {
-  .projects-grid {
-    grid-template-columns: repeat(8, 1fr);
-    gap: 0.8rem;
-  }
-}
-
-/* Tablets landscape (1024px - 1199px) - 6 columnas */
+/* Tablets landscape (1024px - 1199px) */
 @media (max-width: 1199px) and (min-width: 1024px) {
   .projects-modal {
     inset: 0;
   }
 
   .projects-grid {
-    grid-template-columns: repeat(6, 1fr);
-    gap: 0.8rem;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 220px));
+    gap: 1rem;
   }
 
   .projects-modal-header h1 {
@@ -806,8 +858,8 @@
   }
 
   .projects-grid {
-    grid-template-columns: repeat(5, 1fr);
-    gap: 0.7rem;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 210px));
+    gap: 0.9rem;
   }
 
   .projects-modal-header h1 {
@@ -819,8 +871,7 @@
     font-size: 1rem;
   }
 
-  .peek-carousel { height: 52vh; }
-  .peek-carousel .swiper-slide { width: 74vw; }
+  .peek-carousel .swiper-slide { height: min(58vh, 52.9vw); } /* ~94vw ancho */
 }
 
 /* Móviles landscape / tablets pequeñas (480px - 767px) - 3 columnas */
@@ -844,8 +895,9 @@
   }
 
   .projects-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.6rem;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.7rem;
+    max-width: 460px;
   }
 
   .projects-modal-header h1 {
@@ -858,8 +910,7 @@
     font-size: 0.95rem;
   }
 
-  .peek-carousel { height: 46vh; }
-  .peek-carousel .swiper-slide { width: 84vw; }
+  .peek-carousel .swiper-slide { height: min(52vh, 55vw); } /* ~98vw ancho */
 
   .project-info h3 { font-size: 0.75rem; }
   .project-info p  { font-size: 0.65rem; }
@@ -887,8 +938,9 @@
   }
 
   .projects-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.6rem;
+    max-width: 340px;
   }
 
   .projects-modal-header h1 {
@@ -901,8 +953,7 @@
     font-size: 0.9rem;
   }
 
-  .peek-carousel { height: 42vh; }
-  .peek-carousel .swiper-slide { width: 90vw; }
+  .peek-carousel .swiper-slide { height: min(48vh, 55vw); } /* ~98vw ancho */
 
   .carousel-arrow {
     width: 40px;
@@ -921,9 +972,5 @@
 
   .project-info p {
     font-size: 0.6rem;
-  }
-
-  .project-card.disabled::after {
-    font-size: 0.65rem;
   }
 }

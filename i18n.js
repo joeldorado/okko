@@ -24,7 +24,12 @@
         wrongCode:      "Código incorrecto",
         cardSubKOA:     "Diseño Funcional",
         cardSubKOI:     "Arquitectura Contemporánea",
-        cardPrefix:     "Proyecto"
+        cardPrefix:     "Proyecto",
+        filterAll:       "Todos",
+        catCasas:        "Casas",
+        catDesarrollos:  "Desarrollos",
+        catDiseno:       "Diseño",
+        catEdificios:    "Edificios"
       },
       contact: {
         title:         "CONTACTO",
@@ -76,7 +81,12 @@
         wrongCode:      "Incorrect code",
         cardSubKOA:     "Functional Design",
         cardSubKOI:     "Contemporary Architecture",
-        cardPrefix:     "Project"
+        cardPrefix:     "Project",
+        filterAll:       "All",
+        catCasas:        "Houses",
+        catDesarrollos:  "Developments",
+        catDiseno:       "Design",
+        catEdificios:    "Buildings"
       },
       contact: {
         title:         "CONTACT",

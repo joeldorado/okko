@@ -24,112 +24,65 @@ $(document).ready(function () {
   let currentSource = ""; // "header" o "footer"
 
   /* ===============================
-     DETECCIÓN WEBP
+     CATEGORÍAS = FILTROS
+     El orden aquí define el orden de la barra de filtros.
   =============================== */
-  const webpSupported = (() => {
-    const c = document.createElement("canvas");
-    return (c.getContext && c.getContext("2d"))
-      ? c.toDataURL("image/webp").indexOf("data:image/webp") === 0
-      : false;
-  })();
-
-  // Convierte .jpg → .webp si el browser lo soporta
-  function wp(path) {
-    return webpSupported ? path.replace(/\.jpg$/i, ".webp") : path;
-  }
-
-  /* ===============================
-     DATOS DE PROYECTOS (25 PROYECTOS)
-  =============================== */
-
-  // Thumbnails 300px — para preview en cards del grid
-  const thumbPool = [
-    "./images/slides/KOI/thumb/_MG_0582-2.jpg",
-    "./images/slides/KOI/thumb/_MG_0623.jpg",
-    "./images/slides/KOI/thumb/7.jpg",
-    "./images/slides/KOI/thumb/Escena_9.jpg",
-    "./images/slides/KOI/thumb/Jardin.jpg",
-    "./images/slides/KOI/thumb/JORGE_TORRES_BRIARA_FACHADA_HD.jpg",
-    "./images/slides/KOI/thumb/JORGE_TORRES_BRIARA_ROOF_HD.jpg",
-    "./images/slides/KOI/thumb/JORGE_TORRES_BRIARA_SALA_COMEDOR_HD.jpg",
-    "./images/slides/KOI/thumb/M1_Recamara.jpg",
-    "./images/slides/KOI/thumb/TF1_1500.jpg",
-    "./images/slides/KOI/thumb/Trasera.jpg",
-    "./images/slides/KOA/thumb/_MG_0490.jpg",
-    "./images/slides/KOA/thumb/_MG_0571.jpg",
-    "./images/slides/KOA/thumb/Alberca.jpg",
-    "./images/slides/KOA/thumb/Escena_7.jpg",
-    "./images/slides/KOA/thumb/Fachada_Trasera.jpg",
-    "./images/slides/KOA/thumb/H1.jpg",
-    "./images/slides/KOA/thumb/H16.jpg",
-    "./images/slides/KOA/thumb/Interior_mod_1.jpg",
-    "./images/slides/KOA/thumb/JORGE_TORRES_BRIARA_RECAMARA_BANO_HD.jpg",
-    "./images/slides/KOA/thumb/JT_BRI_SC_HD.jpg",
+  const CATEGORIES = [
+    { key: "all",          i18n: "projects.filterAll" },
+    { key: "casas",        i18n: "projects.catCasas" },
+    { key: "desarrollos",  i18n: "projects.catDesarrollos" },
+    { key: "diseno",       i18n: "projects.catDiseno" },
+    { key: "edificios",    i18n: "projects.catEdificios" },
   ];
 
-  // Large 1600px — para galería fullscreen
-  const lgPool = [
-    "./images/slides/KOI/lg/_MG_0582-2.jpg",
-    "./images/slides/KOI/lg/_MG_0623.jpg",
-    "./images/slides/KOI/lg/7.jpg",
-    "./images/slides/KOI/lg/Escena_9.jpg",
-    "./images/slides/KOI/lg/Jardin.jpg",
-    "./images/slides/KOI/lg/JORGE_TORRES_BRIARA_FACHADA_HD.jpg",
-    "./images/slides/KOI/lg/JORGE_TORRES_BRIARA_ROOF_HD.jpg",
-    "./images/slides/KOI/lg/JORGE_TORRES_BRIARA_SALA_COMEDOR_HD.jpg",
-    "./images/slides/KOI/lg/M1_Recamara.jpg",
-    "./images/slides/KOI/lg/TF1_1500.jpg",
-    "./images/slides/KOI/lg/Trasera.jpg",
-    "./images/slides/KOA/lg/_MG_0490.jpg",
-    "./images/slides/KOA/lg/_MG_0571.jpg",
-    "./images/slides/KOA/lg/Alberca.jpg",
-    "./images/slides/KOA/lg/Escena_7.jpg",
-    "./images/slides/KOA/lg/Fachada_Trasera.jpg",
-    "./images/slides/KOA/lg/H1.jpg",
-    "./images/slides/KOA/lg/H16.jpg",
-    "./images/slides/KOA/lg/Interior_mod_1.jpg",
-    "./images/slides/KOA/lg/JORGE_TORRES_BRIARA_RECAMARA_BANO_HD.jpg",
-    "./images/slides/KOA/lg/JT_BRI_SC_HD.jpg",
-  ];
-
-  // Generar 25 proyectos mezclados
-  const proyectos = [];
-  const empresas = ["KOA", "KOI"];
-
-  for (let i = 1; i <= 25; i++) {
-    const empresa = empresas[Math.floor(Math.random() * empresas.length)];
-    const hasKey = Math.random() < 0.3;
-
-    // Thumbnail para card (pequeño, rápido)
-    const img = wp(thumbPool[Math.floor(Math.random() * thumbPool.length)]);
-
-    // Galería de 3-5 imágenes en alta resolución
-    const gallerySize = Math.floor(Math.random() * 3) + 3;
-    const gallerySet = Array.from({ length: gallerySize }, () =>
-      wp(lgPool[Math.floor(Math.random() * lgPool.length)])
-    );
-
-    proyectos.push({
-      id: i,
-      empresa: empresa,
-      titulo: `Proyecto ${empresa} ${i}`,
-      subtitulo: empresa === "KOA" ? "Diseño Funcional" : "Arquitectura Contemporánea",
-      hasKey: hasKey,
-      imagen: img,
-      images: gallerySet,
-      descripcion: `Este es un proyecto destacado de ${empresa}.`
-    });
-  }
+  // Filtro activo actual (persistente entre re-render / re-tema)
+  let currentFilter = "all";
 
   /* ===============================
-     SHUFFLE ARRAY (Fisher-Yates)
+     DATOS DE PROYECTOS (CATÁLOGO REAL)
+     cover  → thumbnail para la card del grid
+     images → galería en alta resolución (peek carousel)
+     Casa Lumen es el proyecto de referencia; el resto crece con el tiempo.
   =============================== */
-  function shuffleArray(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
+  function galleryOf(slug, count) {
+    return Array.from({ length: count }, (_, i) =>
+      `./images/proyectos/${slug}/lg/${i + 1}.jpg`);
   }
+
+  const proyectos = [
+    {
+      id: 1,
+      slug: "casa-lumen",
+      categoria: "casas",
+      titulo: "Casa Lumen",
+      cover: "./images/proyectos/casa-lumen/thumb/cover.jpg",
+      images: galleryOf("casa-lumen", 7),
+    },
+    {
+      id: 2,
+      slug: "dm-centenario",
+      categoria: "desarrollos",
+      titulo: "DM Centenario",
+      cover: "./images/proyectos/dm-centenario/thumb/cover.jpg",
+      images: galleryOf("dm-centenario", 5),
+    },
+    {
+      id: 3,
+      slug: "el-tigrillo",
+      categoria: "edificios",
+      titulo: "El Tigrillo",
+      cover: "./images/proyectos/el-tigrillo/thumb/cover.jpg",
+      images: galleryOf("el-tigrillo", 6),
+    },
+    {
+      id: 4,
+      slug: "md1",
+      categoria: "diseno",
+      titulo: "MD1",
+      cover: "./images/proyectos/md1/thumb/cover.jpg",
+      images: galleryOf("md1", 4),
+    },
+  ];
 
   /* ===============================
      FUNCIÓN PARA ABRIR MODAL DE PROYECTOS
@@ -149,93 +102,117 @@ $(document).ready(function () {
       $projectsModal.addClass("from-footer");
     }
 
-    // Mostrar modal
-    $projectsModal.removeClass("hidden").addClass("active");
+    // Mostrar modal — reflow entre quitar hidden (display:none) y activar para que
+    // el slide de entrada anime desde el estado aparcado (translateX ±100%)
+    $projectsModal.removeClass("hidden");
+    void $projectsModal[0].offsetWidth; // reflow
+    $projectsModal.addClass("active");
 
     // Ocultar galería individual, mostrar grid
     $accessScreen.addClass("hidden");
     $galleryScreen.addClass("hidden");
 
-    // Reordenar cards aleatoriamente cada vez que se abre
-    shuffleArray(proyectos);
-
-    // Renderizar proyectos
+    // Barra de filtros + grid
+    renderFilters();
     renderProjects();
 
-    // Bloquear scroll del body
-    $("body").css("overflow", "hidden");
+    // Precargar en segundo plano las fotos de la galería (para abrir detalle instantáneo)
+    preloadGalleryImages();
+
+    // Proyectos vive entre header/footer; el grid scrollea internamente (sin lock global)
   };
 
   /* ===============================
-     RENDERIZAR GRID DE PROYECTOS
+     PRECARGA DE FOTOS DE GALERÍA (en segundo plano)
+     Recorre proyectos[].images una sola vez con concurrencia limitada, de modo
+     que al abrir un proyecto las imágenes 'lg' ya estén en cache.
+  =============================== */
+  let galleryPreloadStarted = false;
+  function preloadGalleryImages() {
+    if (galleryPreloadStarted) return;
+    galleryPreloadStarted = true;
+    const urls = [];
+    proyectos.forEach(p => (p.images || []).forEach(src => urls.push(src)));
+    let i = 0;
+    const CONCURRENCY = 4;
+    const next = () => {
+      if (i >= urls.length) return;
+      const img = new Image();
+      const done = () => next();
+      img.onload = done;
+      img.onerror = done;
+      img.src = urls[i++];
+    };
+    const start = () => { for (let k = 0; k < CONCURRENCY; k++) next(); };
+    if ("requestIdleCallback" in window) requestIdleCallback(start);
+    else setTimeout(start, 300);
+  }
+
+  /* ===============================
+     TRADUCTOR CORTO (fallback a la clave)
+  =============================== */
+  function _t(key) {
+    return (window.i18n && window.i18n.t) ? window.i18n.t(key) : key;
+  }
+
+  // Etiqueta de categoría legible desde la clave interna
+  function categoryLabel(key) {
+    const cat = CATEGORIES.find((c) => c.key === key);
+    return cat ? _t(cat.i18n) : key;
+  }
+
+  /* ===============================
+     RENDERIZAR BARRA DE FILTROS
+  =============================== */
+  const $projectsFilters = $("#projectsFilters");
+
+  function renderFilters() {
+    $projectsFilters.empty();
+    CATEGORIES.forEach((cat) => {
+      const $btn = $(`
+        <button type="button" class="filter-btn${cat.key === currentFilter ? " active" : ""}"
+                data-filter="${cat.key}" data-i18n="${cat.i18n}">${categoryLabel(cat.key)}</button>
+      `);
+      $btn.on("click", () => setFilter(cat.key));
+      $projectsFilters.append($btn);
+    });
+  }
+
+  function setFilter(key) {
+    if (key === currentFilter) return;
+    currentFilter = key;
+    $projectsFilters.find(".filter-btn").removeClass("active")
+      .filter(`[data-filter="${key}"]`).addClass("active");
+    renderProjects();
+  }
+
+  /* ===============================
+     RENDERIZAR GRID DE PROYECTOS (catálogo real, filtrado por categoría)
   =============================== */
   function renderProjects() {
-    console.log("renderProjects called with theme:", currentTheme);
     $projectsGrid.empty();
 
-    // Array para almacenar todas las tarjetas y aplicar delays aleatorios
     const allCards = [];
+    const visible = proyectos.filter((p) =>
+      currentFilter === "all" || p.categoria === currentFilter);
 
-    // Renderizar los 25 proyectos
-    const _t = (window.i18n && window.i18n.t) ? window.i18n.t.bind(window.i18n) : (k) => k;
-
-    let activeCount = 0;
-    proyectos.forEach((p) => {
-      // Determinar si el proyecto está activo según el tema
-      const isActive =
-        (currentTheme === "dark" && p.empresa === "KOA") ||
-        (currentTheme === "light" && p.empresa === "KOI");
-
-      if (isActive) activeCount++;
-
-      const cardPrefix      = _t("projects.cardPrefix");
-      const cardSubtitulo   = _t(`projects.cardSub${p.empresa}`);
-      const disabledLabel   = `${_t("projects.disabledPrefix")} ${p.empresa}`;
-      const cardTitulo      = `${cardPrefix} ${p.empresa} ${p.id}`;
-
+    visible.forEach((p) => {
       const card = $(`
-        <div class="project-card ${isActive ? "" : "disabled"}"
-             data-id="${p.id}"
-             data-empresa="${p.empresa}"
-             data-empresa-disabled="${disabledLabel}">
-          <img src="${p.imagen}" alt="${cardTitulo}">
+        <div class="project-card" data-id="${p.id}" data-categoria="${p.categoria}">
+          <img src="${p.cover}" alt="${p.titulo}" loading="lazy">
           <div class="card-overlay"></div>
           <div class="project-info">
-            <h3>${cardTitulo}</h3>
-            <p>${cardSubtitulo}</p>
+            <h3>${p.titulo}</h3>
+            <p>${categoryLabel(p.categoria)}</p>
           </div>
-          ${p.hasKey ? '<i class="fa-solid fa-key key-icon"></i>' : ""}
         </div>
       `);
 
-      // Event handlers para tarjetas activas y disabled
-      if (isActive) {
-        // Tarjetas activas abren el detalle directamente
-        card.on("click", () => {
-          console.log("Card clicked:", p.titulo, p.id);
-          openProjectDetail(p);
-        });
-      } else {
-        // Tarjetas disabled cambian el tema y luego abren el detalle
-        card.on("click", () => {
-          console.log("Disabled card clicked:", p.titulo, p.id, p.empresa);
-          handleDisabledCardClick(p);
-        });
-      }
+      card.on("click", () => openProjectDetail(p));
 
       $projectsGrid.append(card);
       allCards.push(card);
     });
-
-    console.log(`Rendered ${activeCount} active projects out of ${proyectos.length} total`);
-
-    // Agregar 5 placeholders para completar el grid (2 filas de 10 + 1 de 5)
-    // for (let i = 0; i < 5; i++) {
-    //   const placeholder = $(`
-    //     <div class="project-placeholder theme-${currentTheme}"></div>
-    //   `);
-    //   $projectsGrid.append(placeholder);
-    // }
 
     // Aplicar efecto pop con delays aleatorios
     applyPopEffect(allCards);
@@ -254,71 +231,6 @@ $(document).ready(function () {
         card.addClass("pop-in");
       }, randomDelay);
     });
-  }
-
-  /* ===============================
-     MANEJAR CLICK EN TARJETA DISABLED
-  =============================== */
-  function handleDisabledCardClick(project) {
-    // Determinar el nuevo tema basado en la empresa del proyecto
-    const newTheme = project.empresa === "KOI" ? "light" : "dark";
-    const newThemeName = project.empresa === "KOI" ? "koi" : "koa";
-
-    console.log(`Cambiando tema de ${currentTheme} a ${newTheme} para proyecto ${project.titulo}`);
-
-    // Animar opacidad del modal mientras cambia el tema
-    const projectsModal = document.getElementById('projectsModal');
-
-    const modalsToAnimate = [];
-    if (projectsModal && projectsModal.classList.contains('active')) {
-      modalsToAnimate.push(projectsModal);
-    }
-
-    // Animar opacidad de los modales
-    modalsToAnimate.forEach(modal => {
-      gsap.to(modal, {
-        duration: 0.6,
-        opacity: 0.8,
-        ease: "power2.inOut"
-      });
-    });
-
-    // Cambiar tema global (header, footer, diagonales)
-    if (typeof updateHeaderFooterTheme === 'function') {
-      updateHeaderFooterTheme(newThemeName);
-    }
-    if (typeof showSlides === 'function') {
-      showSlides(newThemeName);
-    }
-    localStorage.setItem('themeMode', newTheme);
-
-    // Animar header y footer
-    const mainHeader = document.getElementById('mainHeader');
-    const mainFooter = document.getElementById('mainFooter');
-
-    if (newThemeName === 'koi') {
-      gsap.to(mainHeader, { duration: 0.6, opacity: 1, ease: "power2.inOut" });
-      gsap.to(mainFooter, { duration: 0.6, opacity: 0.5, ease: "power2.inOut" });
-    } else {
-      gsap.to(mainFooter, { duration: 0.6, opacity: 1, ease: "power2.inOut" });
-      gsap.to(mainHeader, { duration: 0.6, opacity: 0.5, ease: "power2.inOut" });
-    }
-
-    // Actualizar el tema del modal de proyectos (esto re-renderiza las tarjetas con animación)
-    setTimeout(() => {
-      window.updateProjectsTheme(newTheme);
-
-      // Restaurar opacidad
-      modalsToAnimate.forEach(modal => {
-        gsap.to(modal, {
-          duration: 0.6,
-          opacity: 1,
-          ease: "power2.inOut"
-        });
-      });
-
-      // Solo cambiar tema y re-renderizar, NO abrir el detalle
-    }, 600);
   }
 
   /* ===============================
@@ -458,6 +370,10 @@ $(document).ready(function () {
   $closeBtn.on("click", closeProjectsModal);
   $detailCloseBtn.on("click", closeDetailModal);
 
+  // Exponer para cerrar Proyectos desde el logo / menú del header o footer
+  window.closeProjectsModal = closeProjectsModal;
+  window.isProjectsOpen = () => $projectsModal.hasClass("active");
+
   // Cerrar con ESC
   $(document).on("keydown", function (e) {
     if (e.key === "Escape") {
@@ -479,6 +395,7 @@ $(document).ready(function () {
   // Re-renderizar cards al cambiar idioma
   document.addEventListener("langchange", function () {
     if ($projectsModal.hasClass("active") && !$projectsModal.hasClass("detail-active")) {
+      renderFilters();
       renderProjects();
     }
   });
@@ -500,6 +417,38 @@ $(document).ready(function () {
       $(".project-card").removeClass("pop-in");
       renderProjects();
     }
+  };
+
+  /* ===============================
+     RE-TEMATIZAR DESLIZANDO (sin cerrar)
+     Cambia el tema del modal abierto y lo hace entrar deslizándose desde el
+     lado nuevo: header (KOI) desde la izquierda, footer (KOA) desde la derecha.
+  =============================== */
+  window.slideProjectsToTheme = function (theme, source) {
+    if (!$projectsModal.hasClass("active")) return;
+    const el = $projectsModal[0];
+    currentTheme = theme;
+    currentSource = source;
+
+    $projectsModal
+      .removeClass("theme-dark theme-light from-header from-footer")
+      .addClass(`theme-${theme}`)
+      .addClass(source === "header" ? "from-header" : "from-footer");
+
+    // Saltar (sin transición) al lado nuevo fuera de pantalla, re-render, luego deslizar a 0
+    el.style.transition = "none";
+    el.style.transform = source === "header" ? "translateX(-100%)" : "translateX(100%)";
+
+    if (!$projectsModal.hasClass("detail-active")) {
+      $(".project-card").removeClass("pop-in");
+      renderProjects();
+    }
+
+    void el.offsetWidth; // reflow: fija el estado aparcado
+    requestAnimationFrame(() => {
+      el.style.transition = "";
+      el.style.transform = "";
+    });
   };
 
 });

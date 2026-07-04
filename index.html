@@ -261,13 +261,13 @@
   -webkit-backdrop-filter: blur(20px);
 }
 
-/* Card con tema oscuro (KOA - izquierda) */
+/* Card con tema oscuro (KOA - izquierda) — glass legible, no negro pleno */
 .about-dark .about-card {
-  background: rgba(0, 0, 0, 0.70);
+  background: rgba(22, 22, 24, 0.5);
   box-shadow:
-    -12px 12px 40px rgba(0, 0, 0, 0.5),
-    -4px 4px 12px rgba(0, 0, 0, 0.3),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    -12px 12px 40px rgba(0, 0, 0, 0.45),
+    -4px 4px 12px rgba(0, 0, 0, 0.28),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.14);
 }
 
 /* Card con tema claro (KOI - derecha) */
@@ -306,7 +306,7 @@
 
 /* Título */
 .about-title {
-  font-size: 32px;
+  font-size: clamp(1.4rem, 1rem + 1.6vw, 2rem);
   letter-spacing: 4px;
   margin-bottom: 20px;
 }
@@ -584,7 +584,7 @@
           </li> -->
           <li><a href="#" id="contactoHeader" data-i18n="nav.contacto">Contacto</a></li>
           <li class="has-submenu">
-            <a href="#" id="musicHeader"><i class="fa-solid fa-volume-high"></i></a>
+            <a href="#" id="musicHeader" aria-label="Sonido" aria-checked="false"><i class="fa-solid fa-volume-xmark"></i></a>
             <ul class="submenu">
               <li><a href="#" class="music-track" data-src="./music/intro.mp3" data-i18n="nav.intro">Intro</a></li>
               <li><a href="#" class="music-track" data-src="./music/intro.mp3" data-i18n="nav.cancion2">Canción 2</a></li>
@@ -612,7 +612,7 @@
             <span class="lang-btn is-active" data-lang="es">ESP</span>
           </li>
           <li class="has-submenu">
-            <a href="#" id="musicFooter"><i class="fa-solid fa-volume-high"></i></a>
+            <a href="#" id="musicFooter" aria-label="Sonido" aria-checked="false"><i class="fa-solid fa-volume-xmark"></i></a>
             <ul class="submenu">
               <li><a href="#" class="music-track" data-src="./music/intro.mp3" data-i18n="nav.intro">Intro</a></li>
               <li><a href="#" class="music-track" data-src="./music/intro.mp3" data-i18n="nav.cancion2">Canción 2</a></li>
@@ -799,6 +799,7 @@
             <h1 data-i18n="projects.title">PROYECTOS</h1>
             <p data-i18n="projects.subtitle">Explora nuestra selección de proyectos destacados</p>
           </div>
+          <div class="projects-filters" id="projectsFilters"><!-- botones de filtro renderizados por JS --></div>
           <div class="projects-grid" id="projectsGridModal">
             <!-- Proyectos se cargan dinámicamente vía JS -->
           </div>
@@ -1228,79 +1229,76 @@
        MUSIC PLAYER TOGGLE
     ================================ */
     (function() {
-      const backgroundMusic = document.getElementById('backgroundMusic');
-      const musicHeaderBtn = document.getElementById('musicHeader');
-      const musicFooterBtn = document.getElementById('musicFooter');
-      let isPlaying = false;
+      const audio = document.getElementById('backgroundMusic');
+      const headerBtn = document.getElementById('musicHeader');
+      const footerBtn = document.getElementById('musicFooter');
+      if (!audio || !headerBtn || !footerBtn) return;
 
-      // Verificar que los elementos existen
-      if (!backgroundMusic || !musicHeaderBtn || !musicFooterBtn) {
-        console.error('Music player elements not found');
-        console.log('backgroundMusic:', backgroundMusic);
-        console.log('musicHeaderBtn:', musicHeaderBtn);
-        console.log('musicFooterBtn:', musicFooterBtn);
-        return;
+      // Arranca apagado (sin autoplay). Volumen al 25%.
+      audio.volume = 0.25;
+      let currentSrc = './music/intro.mp3';
+
+      // Refleja play/pausa en ambos íconos (altavoz vs. muteado)
+      function setIcons(playing) {
+        [headerBtn, footerBtn].forEach(function (btn) {
+          const icon = btn.querySelector('svg, i');
+          if (icon) {
+            icon.classList.toggle('fa-volume-high', playing);
+            icon.classList.toggle('fa-volume-xmark', !playing);
+          }
+          btn.setAttribute('aria-checked', String(playing));
+        });
       }
 
-      // Establecer volumen al 25%
-      backgroundMusic.volume = 0.25;
+      function pulse() {
+        headerBtn.classList.add('music-click');
+        footerBtn.classList.add('music-click');
+        setTimeout(function () {
+          headerBtn.classList.remove('music-click');
+          footerBtn.classList.remove('music-click');
+        }, 600);
+      }
 
-      function toggleMusic(e) {
+      function playSrc(src) {
+        if (src && src !== currentSrc) {
+          audio.src = src;
+          currentSrc = src;
+        }
+        audio.play().then(function () { setIcons(true); }).catch(function () {});
+      }
+
+      function pauseAudio() {
+        audio.pause();
+        setIcons(false);
+      }
+
+      // Clic en el ícono del altavoz → alterna la pista actual
+      function toggleIcon(e) {
         e.preventDefault();
         e.stopPropagation();
-
-        // Font Awesome convierte <i> en <svg>, así que buscamos el svg
-        const headerIcon = musicHeaderBtn.querySelector('svg');
-        const footerIcon = musicFooterBtn.querySelector('svg');
-
-        if (!headerIcon || !footerIcon) {
-          console.error('Music icons not found');
-          return;
-        }
-
-        // Agregar clase para animación
-        musicHeaderBtn.classList.add('music-click');
-        musicFooterBtn.classList.add('music-click');
-
-        // Remover clase después de la animación
-        setTimeout(() => {
-          musicHeaderBtn.classList.remove('music-click');
-          musicFooterBtn.classList.remove('music-click');
-        }, 600);
-
-        if (isPlaying) {
-          // Detener la música y volver al inicio
-          backgroundMusic.pause();
-          backgroundMusic.currentTime = 0;
-
-          // Cambiar iconos a play
-          headerIcon.classList.remove('fa-stop');
-          headerIcon.classList.add('fa-play');
-          footerIcon.classList.remove('fa-stop');
-          footerIcon.classList.add('fa-play');
-
-          isPlaying = false;
-        } else {
-          // Reproducir música
-          backgroundMusic.play().catch(error => {
-            console.error('Error playing music:', error);
-          });
-
-          // Cambiar iconos a stop
-          headerIcon.classList.remove('fa-play');
-          headerIcon.classList.add('fa-stop');
-          footerIcon.classList.remove('fa-play');
-          footerIcon.classList.add('fa-stop');
-
-          isPlaying = true;
-        }
+        pulse();
+        if (audio.paused) { playSrc(currentSrc); } else { pauseAudio(); }
       }
+      headerBtn.addEventListener('click', toggleIcon);
+      footerBtn.addEventListener('click', toggleIcon);
 
-      // Agregar event listeners
-      musicHeaderBtn.addEventListener('click', toggleMusic);
-      musicFooterBtn.addEventListener('click', toggleMusic);
+      // Clic en una canción del menú (hover) → reproduce / pausa esa pista
+      document.querySelectorAll('.music-track').forEach(function (track) {
+        track.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          pulse();
+          const src = track.dataset.src;
+          if (!audio.paused && src === currentSrc) {
+            pauseAudio();
+          } else {
+            playSrc(src);
+          }
+        });
+      });
 
-      console.log('Music player initialized');
+      // Mantener íconos sincronizados si el audio termina/pausa por sí mismo
+      audio.addEventListener('ended', function () { setIcons(false); });
     })();
     </script>
 
