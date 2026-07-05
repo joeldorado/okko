@@ -298,15 +298,6 @@ function selectDiagonal(side) {
             bottom.classList.add("inactive");
         }, 0.4)
         .add(() => {
-            // Remover la animación del keyframe para que GSAP tome control
-            top.style.animation = "none";
-        }, 1.6)
-        .to(top, {
-            duration: 3.0,
-            filter: "grayscale(0%) brightness(1)",
-            ease: "power2.inOut"
-        }, 1.8)
-        .add(() => {
             // Mostrar el overlay de la diagonal bottom
             gsap.set(overlayBottom, {
                 opacity: 1
@@ -377,15 +368,6 @@ function selectDiagonal(side) {
             bottom.classList.add("expand", "active");
             top.classList.add("inactive");
         }, 0.4)
-        .add(() => {
-            // Remover la animación del keyframe para que GSAP tome control
-            bottom.style.animation = "none";
-        }, 1.6)
-        .to(bottom, {
-            duration: 3.0,
-            filter: "grayscale(0%) brightness(1)",
-            ease: "power2.inOut"
-        }, 1.8)
         .add(() => {
             // Mostrar el overlay de la diagonal top
             gsap.set(overlayTop, {
@@ -479,6 +461,20 @@ let firstClickDone = false;
 // === Transición de tema: cover slide direccional (sin destello) ===
 const okkoReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// Al terminar la reveal (5s), fijar el estado estable a color con .reveal-done.
+// Sin esto el fill-mode "forwards" retiene el filter animado y bloquea .hero-dim,
+// y la reveal se re-dispararía en cada cambio de tema.
+['top', 'bottom'].forEach(id => {
+    const diagonal = document.getElementById(id);
+    if (diagonal) {
+        diagonal.addEventListener('animationend', (e) => {
+            if (e.animationName === 'diagonalReveal') {
+                diagonal.classList.add('reveal-done');
+            }
+        });
+    }
+});
+
 let okkoPendingThemeFinalize = null; // guard para clicks rápidos / popstate
 let okkoThemeTween = null;           // referencia al tween en vuelo para matarlo directo
 
@@ -537,7 +533,9 @@ function showSlides(slideType) {
 
     // ENTRANTE: fullscreen, visible, encima, aparcado fuera de pantalla vía --slideX
     incoming.classList.remove('inactive');
-    incoming.classList.add('expand', 'active', 'theme-sliding', 'theme-incoming');
+    // reveal-done: la reveal de 5s es solo para la entrada desde el landing,
+    // no debe re-correr (con flash gris) en cada cambio de tema.
+    incoming.classList.add('expand', 'active', 'theme-sliding', 'theme-incoming', 'reveal-done');
     incoming.setAttribute('style', 'display: block !important; opacity: 1 !important; visibility: visible !important; filter: none !important;');
 
     // Ambos slide containers quedan display:block tras el primer reveal → los ciclos
@@ -546,47 +544,66 @@ function showSlides(slideType) {
     koaSlides.setAttribute('style', 'display: block !important;');
 
     okkoThemeSlide(incoming, outgoing, direction);
+
+    // Reafirmar el estado de blur del hero (el setAttribute de arriba lo pisa)
+    updateHeroDim();
 }
+
+// Re-tematizar el modal Proyectos deslizando (sin cerrar) cuando esté abierto
+// y en el lado contrario al tema. Los locks de las cards siguen al tema.
+function syncProjectsModalTheme(brand) {
+    const isKoi = brand === 'koi';
+    const modal = document.getElementById('projectsModal');
+    if (modal && modal.classList.contains('active') &&
+        !modal.classList.contains(isKoi ? 'from-header' : 'from-footer') &&
+        typeof window.slideProjectsToTheme === 'function') {
+        window.slideProjectsToTheme(isKoi ? 'light' : 'dark', isKoi ? 'header' : 'footer');
+    }
+}
+
+// Pipeline única de cambio de tema del sitio — compartida por header, footer,
+// cards bloqueadas y el switch de marca del modal Proyectos.
+// brand: 'koi' (claro) | 'koa' (oscuro)
+window.applySiteTheme = function (brand) {
+    const isKoi = brand === 'koi';
+    const activeEl = isKoi ? mainHeader : mainFooter;
+    const otherEl = isKoi ? mainFooter : mainHeader;
+
+    // Cambiar solo si NO está ya activo
+    const alreadyActive = activeEl.classList.contains(isKoi ? 'theme-koi' : 'theme-koa') &&
+        parseFloat(window.getComputedStyle(activeEl).opacity) >= 0.9;
+
+    if (!alreadyActive) {
+        // Animar transición de header y footer
+        gsap.to(activeEl, {
+            duration: 0.6,
+            opacity: 1,
+            ease: "power2.inOut"
+        });
+        gsap.to(otherEl, {
+            duration: 0.6,
+            opacity: 0.8,
+            ease: "power2.inOut"
+        });
+
+        // Cambiar tema de header y footer
+        updateHeaderFooterTheme(brand);
+        // Mostrar slides con animación direccional
+        showSlides(brand);
+        // Actualizar localStorage
+        localStorage.setItem('themeMode', isKoi ? 'light' : 'dark');
+        // Actualizar URL (base-aware)
+        history.pushState({ project: brand }, '', okkoPath(brand));
+    }
+
+    syncProjectsModalTheme(brand);
+};
 
 // Click en header para cambiar tema y slider
 mainHeader.addEventListener('click', function(e) {
     // Si se hace click en un link del menú, no cambiar tema aquí
     if (!e.target.closest('a')) {
-        // Cambiar a tema KOI (claro) solo si NO está ya activo
-        const isKoiActive = mainHeader.classList.contains('theme-koi') &&
-                           parseFloat(window.getComputedStyle(mainHeader).opacity) >= 0.9;
-
-        if (!isKoiActive) {
-            // Animar transición de header y footer
-            gsap.to(mainHeader, {
-                duration: 0.6,
-                opacity: 1,
-                ease: "power2.inOut"
-            });
-            gsap.to(mainFooter, {
-                duration: 0.6,
-                opacity: 0.8,
-                ease: "power2.inOut"
-            });
-
-            // Cambiar tema de header y footer
-            updateHeaderFooterTheme('koi');
-            // Mostrar slides de KOI con animación desde arriba
-            showSlides('koi');
-            // Actualizar localStorage
-            localStorage.setItem('themeMode', 'light');
-            // Actualizar URL (base-aware)
-            history.pushState({ project: 'koi' }, '', okkoPath('koi'));
-        }
-
-        // Si Proyectos está abierto, re-tematizar deslizando (sin cerrar) cuando el
-        // modal esté en el lado equivocado. Un solo click cambia de tema.
-        const projectsModal = document.getElementById('projectsModal');
-        if (projectsModal && projectsModal.classList.contains('active') &&
-            !projectsModal.classList.contains('from-header') &&
-            typeof window.slideProjectsToTheme === 'function') {
-            window.slideProjectsToTheme('light', 'header');
-        }
+        window.applySiteTheme('koi');
     }
 });
 
@@ -594,41 +611,7 @@ mainHeader.addEventListener('click', function(e) {
 mainFooter.addEventListener('click', function(e) {
     // Si se hace click en un link del menú, no cambiar tema aquí
     if (!e.target.closest('a')) {
-        // Cambiar a tema KOA (oscuro) solo si NO está ya activo
-        const isKoaActive = mainFooter.classList.contains('theme-koa') &&
-                           parseFloat(window.getComputedStyle(mainFooter).opacity) >= 0.9;
-
-        if (!isKoaActive) {
-            // Animar transición de header y footer
-            gsap.to(mainFooter, {
-                duration: 0.6,
-                opacity: 1,
-                ease: "power2.inOut"
-            });
-            gsap.to(mainHeader, {
-                duration: 0.6,
-                opacity: 0.8,
-                ease: "power2.inOut"
-            });
-
-            // Cambiar tema de header y footer
-            updateHeaderFooterTheme('koa');
-            // Mostrar slides de KOA con animación desde abajo
-            showSlides('koa');
-            // Actualizar localStorage
-            localStorage.setItem('themeMode', 'dark');
-            // Actualizar URL (base-aware)
-            history.pushState({ project: 'koa' }, '', okkoPath('koa'));
-        }
-
-        // Si Proyectos está abierto, re-tematizar deslizando (sin cerrar) cuando el
-        // modal esté en el lado equivocado. Un solo click cambia de tema.
-        const projectsModal = document.getElementById('projectsModal');
-        if (projectsModal && projectsModal.classList.contains('active') &&
-            !projectsModal.classList.contains('from-footer') &&
-            typeof window.slideProjectsToTheme === 'function') {
-            window.slideProjectsToTheme('dark', 'footer');
-        }
+        window.applySiteTheme('koa');
     }
 });
 
@@ -675,12 +658,12 @@ document.querySelectorAll('.nav-menu a').forEach(link => {
 window.addEventListener('popstate', function(event) {
     if (event.state && event.state.project) {
         // Si hay un estado guardado, mostrar el proyecto correspondiente
-        if (event.state.project === 'koi') {
-            showSlides('koi');
-            updateHeaderFooterTheme('koi');
-        } else if (event.state.project === 'koa') {
-            showSlides('koa');
-            updateHeaderFooterTheme('koa');
+        const brand = event.state.project;
+        if (brand === 'koi' || brand === 'koa') {
+            showSlides(brand);
+            updateHeaderFooterTheme(brand);
+            localStorage.setItem('themeMode', brand === 'koi' ? 'light' : 'dark');
+            syncProjectsModalTheme(brand);
         }
     } else {
         // Si no hay estado (volvió a la página inicial), recargar en la base
@@ -712,6 +695,41 @@ if (projectsModal) {
 
     observer.observe(projectsModal, { attributes: true, attributeFilter: ['class'] });
 }
+
+// === Hero: difuminar SOLO cuando hay contenido abierto ===
+// Limpio = color HD nítido; con Contacto/Nosotros/Proyectos abierto se atenúa.
+function isContentOpen() {
+    const projects = document.getElementById('projectsModal');
+    const contact = document.getElementById('contactOverlay');
+    const about = document.getElementById('aboutOverlay');
+    return !!((projects && projects.classList.contains('active')) ||
+              (contact && contact.classList.contains('is-active')) ||
+              (about && about.classList.contains('is-active')));
+}
+
+function updateHeroDim() {
+    const dim = isContentOpen();
+    document.querySelectorAll('.diagonal.expand').forEach(diagonal => {
+        if (dim) {
+            // reveal-done corta la reveal si sigue corriendo (fill-mode retendría el filter)
+            diagonal.classList.add('reveal-done', 'hero-dim');
+            // Inline con !important: showSlides fija "filter: none !important" inline
+            // en cada cambio de tema y pisaría la clase.
+            diagonal.style.setProperty('filter', 'blur(6px) brightness(0.7)', 'important');
+        } else {
+            diagonal.classList.remove('hero-dim');
+            diagonal.style.removeProperty('filter');
+        }
+    });
+}
+
+['projectsModal', 'contactOverlay', 'aboutOverlay'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+        new MutationObserver(updateHeroDim)
+            .observe(el, { attributes: true, attributeFilter: ['class'] });
+    }
+});
 
 // El control de sonido vive en el toggle simple de index.html (#musicHeader / #musicFooter).
 

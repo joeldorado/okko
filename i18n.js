@@ -16,8 +16,6 @@
         cancion3:  "Canción 3"
       },
       projects: {
-        title:          "PROYECTOS",
-        subtitle:       "Explora nuestra selección de proyectos destacados",
         protectedTitle: "Proyecto Protegido",
         protectedMsg:   "Ingresa el código de acceso para ver este proyecto:",
         disabledPrefix: "Disponible en",
@@ -73,8 +71,6 @@
         cancion3:  "Song 3"
       },
       projects: {
-        title:          "PROJECTS",
-        subtitle:       "Explore our selection of featured projects",
         protectedTitle: "Protected Project",
         protectedMsg:   "Enter the access code to view this project:",
         disabledPrefix: "Available in",

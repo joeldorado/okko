@@ -22,6 +22,7 @@ $(document).ready(function () {
   let currentIndex = 0;
   let currentTheme = "dark"; // se actualiza desde el index
   let currentSource = ""; // "header" o "footer"
+  let gridStale = false; // el grid quedó con locks de otro tema mientras el detalle estaba abierto
 
   /* ===============================
      CATEGORÍAS = FILTROS
@@ -39,6 +40,26 @@ $(document).ready(function () {
   let currentFilter = "all";
 
   /* ===============================
+     SWITCH MAYOR — MARCA (KOA = negros, KOI = blancos)
+     Ya no filtra: refleja el tema activo del sitio y al click lo cambia
+     (misma pipeline que header/footer). Las 4 cards siempre visibles;
+     las de la otra marca quedan brand-locked con frost glass.
+  =============================== */
+  const BRANDS = [
+    { key: "koa", label: "KOA" },
+    { key: "koi", label: "KOI" },
+  ];
+
+  // Marca activa derivada del tema: light = KOI, dark = KOA
+  function activeBrand() {
+    return currentTheme === "light" ? "koi" : "koa";
+  }
+
+  function isBrandLocked(p) {
+    return p.brand !== activeBrand();
+  }
+
+  /* ===============================
      DATOS DE PROYECTOS (CATÁLOGO REAL)
      cover  → thumbnail para la card del grid
      images → galería en alta resolución (peek carousel)
@@ -49,11 +70,13 @@ $(document).ready(function () {
       `./images/proyectos/${slug}/lg/${i + 1}.jpg`);
   }
 
+  // brand: clasificación visual del proyecto — "koa" = negros/oscuros, "koi" = blancos/claros
   const proyectos = [
     {
       id: 1,
       slug: "casa-lumen",
       categoria: "casas",
+      brand: "koi",
       titulo: "Casa Lumen",
       cover: "./images/proyectos/casa-lumen/thumb/cover.jpg",
       images: galleryOf("casa-lumen", 7),
@@ -62,6 +85,7 @@ $(document).ready(function () {
       id: 2,
       slug: "dm-centenario",
       categoria: "desarrollos",
+      brand: "koa",
       titulo: "DM Centenario",
       cover: "./images/proyectos/dm-centenario/thumb/cover.jpg",
       images: galleryOf("dm-centenario", 5),
@@ -70,6 +94,7 @@ $(document).ready(function () {
       id: 3,
       slug: "el-tigrillo",
       categoria: "edificios",
+      brand: "koi",
       titulo: "El Tigrillo",
       cover: "./images/proyectos/el-tigrillo/thumb/cover.jpg",
       images: galleryOf("el-tigrillo", 6),
@@ -78,29 +103,29 @@ $(document).ready(function () {
       id: 4,
       slug: "md1",
       categoria: "diseno",
+      brand: "koa",
       titulo: "MD1",
       cover: "./images/proyectos/md1/thumb/cover.jpg",
       images: galleryOf("md1", 4),
+      hasKey: true,
     },
   ];
 
   /* ===============================
      FUNCIÓN PARA ABRIR MODAL DE PROYECTOS
   =============================== */
-  window.openProjectsModal = function (theme, source) {
+  window.openProjectsModal = function (theme) {
     currentTheme = theme || "dark";
-    currentSource = source || "";
+    // El origen se deriva del TEMA (no del click): light entra por el lado
+    // KOI (header/izquierda) y dark por el KOA (footer/derecha), para que las
+    // reglas from-* (!important) siempre coincidan con los locks de las cards.
+    currentSource = currentTheme === "light" ? "header" : "footer";
+    gridStale = false;
 
     // Aplicar tema al modal
     $projectsModal.removeClass("theme-dark theme-light from-header from-footer")
-      .addClass(`theme-${currentTheme}`);
-
-    // Aplicar clase según el origen (header o footer)
-    if (source === "header") {
-      $projectsModal.addClass("from-header");
-    } else if (source === "footer") {
-      $projectsModal.addClass("from-footer");
-    }
+      .addClass(`theme-${currentTheme}`)
+      .addClass(currentSource === "header" ? "from-header" : "from-footer");
 
     // Mostrar modal — reflow entre quitar hidden (display:none) y activar para que
     // el slide de entrada anime desde el estado aparcado (translateX ±100%)
@@ -115,6 +140,9 @@ $(document).ready(function () {
     // Barra de filtros + grid
     renderFilters();
     renderProjects();
+
+    // Marcar "Proyectos" como sección activa en header y footer nav
+    $(".proyectos-link").addClass("nav-current");
 
     // Precargar en segundo plano las fotos de la galería (para abrir detalle instantáneo)
     preloadGalleryImages();
@@ -162,11 +190,28 @@ $(document).ready(function () {
   }
 
   /* ===============================
-     RENDERIZAR BARRA DE FILTROS
+     RENDERIZAR BARRAS DE FILTROS
+     Fila 1 (mayor): marca KOA/KOI · Fila 2: categorías
   =============================== */
   const $projectsFilters = $("#projectsFilters");
+  const $projectsBrandFilters = $("#projectsBrandFilters");
 
   function renderFilters() {
+    // Fila mayor — switch de tema por marca (KOA / KOI)
+    $projectsBrandFilters.empty();
+    BRANDS.forEach((b) => {
+      const $btn = $(`
+        <button type="button" class="brand-btn${b.key === activeBrand() ? " active" : ""}"
+                data-brand="${b.key}"><span class="brand-swatch brand-swatch-${b.key}" aria-hidden="true"></span><span class="brand-btn-label">${b.label}</span></button>
+      `);
+      $btn.on("click", () => {
+        if (b.key === activeBrand()) return;
+        if (typeof window.applySiteTheme === "function") window.applySiteTheme(b.key);
+      });
+      $projectsBrandFilters.append($btn);
+    });
+
+    // Fila de categorías
     $projectsFilters.empty();
     CATEGORIES.forEach((cat) => {
       const $btn = $(`
@@ -176,6 +221,12 @@ $(document).ready(function () {
       $btn.on("click", () => setFilter(cat.key));
       $projectsFilters.append($btn);
     });
+  }
+
+  // Sincronizar el switch de marca con el tema vigente (sin re-render de la fila)
+  function syncBrandSwitch() {
+    $projectsBrandFilters.find(".brand-btn").removeClass("active")
+      .filter(`[data-brand="${activeBrand()}"]`).addClass("active");
   }
 
   function setFilter(key) {
@@ -193,22 +244,49 @@ $(document).ready(function () {
     $projectsGrid.empty();
 
     const allCards = [];
+    // Siempre se muestran TODAS las marcas; solo filtra la categoría.
+    // Las cards de la otra marca van brand-locked (frost glass, click = toggle de tema).
     const visible = proyectos.filter((p) =>
       currentFilter === "all" || p.categoria === currentFilter);
 
     visible.forEach((p) => {
+      const brandLocked = isBrandLocked(p);
+      const lockBadge = p.hasKey
+        ? `<div class="card-lock" aria-hidden="true"><i class="fa-solid fa-lock"></i></div>`
+        : "";
+      const lockInline = p.hasKey
+        ? `<i class="fa-solid fa-lock project-info-lock" aria-hidden="true"></i> `
+        : "";
+      const brandLockOverlay = brandLocked
+        ? `<div class="brand-lock-overlay">
+             <span class="brand-lock-hint">
+               <span data-i18n="projects.disabledPrefix">${_t("projects.disabledPrefix")}</span>
+               <strong>${p.brand.toUpperCase()}</strong>
+             </span>
+           </div>`
+        : "";
       const card = $(`
-        <div class="project-card" data-id="${p.id}" data-categoria="${p.categoria}">
+        <div class="project-card${p.hasKey ? " is-locked" : ""}${brandLocked ? " is-brand-locked" : ""}" data-id="${p.id}" data-categoria="${p.categoria}" data-brand="${p.brand}">
           <img src="${p.cover}" alt="${p.titulo}" loading="lazy">
           <div class="card-overlay"></div>
+          ${lockBadge}
           <div class="project-info">
-            <h3>${p.titulo}</h3>
+            <h3>${lockInline}${p.titulo}</h3>
             <p>${categoryLabel(p.categoria)}</p>
           </div>
+          ${brandLockOverlay}
         </div>
       `);
 
-      card.on("click", () => openProjectDetail(p));
+      // El lock se evalúa en click-time: card bloqueada = toggle de tema del
+      // sitio a su marca (no abre el proyecto); card activa = abrir detalle.
+      card.on("click", () => {
+        if (isBrandLocked(p)) {
+          if (typeof window.applySiteTheme === "function") window.applySiteTheme(p.brand);
+          return;
+        }
+        openProjectDetail(p);
+      });
 
       $projectsGrid.append(card);
       allCards.push(card);
@@ -345,6 +423,12 @@ $(document).ready(function () {
       $accessScreen.addClass("hidden");
       $galleryScreen.removeClass("show hide").addClass("hidden");
       currentProject = null;
+      if (gridStale) {
+        gridStale = false;
+        $(".project-card").removeClass("pop-in");
+        renderProjects();
+        syncBrandSwitch();
+      }
     }, 600);
   }
 
@@ -356,6 +440,7 @@ $(document).ready(function () {
     }
 
     $projectsModal.addClass("closing");
+    $(".proyectos-link").removeClass("nav-current");
 
     setTimeout(() => {
       $projectsModal.removeClass("active closing detail-active").addClass("hidden");
@@ -403,23 +488,6 @@ $(document).ready(function () {
   // Detail modal solo se cierra con la X (no al hacer click fuera)
 
   /* ===============================
-     ACTUALIZAR TEMA DESDE EXTERIOR
-  =============================== */
-  window.updateProjectsTheme = function (theme) {
-    currentTheme = theme;
-
-    // Quitar from-header/from-footer para que el color del nuevo tema tome efecto
-    $projectsModal
-      .removeClass("theme-dark theme-light from-header from-footer")
-      .addClass(`theme-${currentTheme}`);
-
-    if ($projectsModal.hasClass("active") && !$projectsModal.hasClass("detail-active")) {
-      $(".project-card").removeClass("pop-in");
-      renderProjects();
-    }
-  };
-
-  /* ===============================
      RE-TEMATIZAR DESLIZANDO (sin cerrar)
      Cambia el tema del modal abierto y lo hace entrar deslizándose desde el
      lado nuevo: header (KOI) desde la izquierda, footer (KOA) desde la derecha.
@@ -439,9 +507,12 @@ $(document).ready(function () {
     el.style.transition = "none";
     el.style.transform = source === "header" ? "translateX(-100%)" : "translateX(100%)";
 
+    syncBrandSwitch();
     if (!$projectsModal.hasClass("detail-active")) {
       $(".project-card").removeClass("pop-in");
       renderProjects();
+    } else {
+      gridStale = true; // re-render diferido: los locks se actualizan al volver del detalle
     }
 
     void el.offsetWidth; // reflow: fija el estado aparcado

@@ -121,6 +121,7 @@
       .then(() => {
         // Éxito: limpiar formulario y mostrar mensaje
         contactFormElement.reset();
+        resetTextareaHeight();
         resetErrors();
         showSuccessMessage();
       })
@@ -149,6 +150,49 @@
   }
 
   /**
+   * Auto-resize del textarea: arranca en una línea y crece con el contenido
+   */
+  const TEXTAREA_MAX_HEIGHT = 200; // px, sincronizado con max-height en contacto.css
+
+  function autoResizeTextarea(textarea) {
+    const previousHeight = textarea.offsetHeight;
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, TEXTAREA_MAX_HEIGHT) + 'px';
+    textarea.style.overflowY = textarea.scrollHeight > TEXTAREA_MAX_HEIGHT ? 'auto' : 'hidden';
+    return textarea.offsetHeight !== previousHeight;
+  }
+
+  /**
+   * Mantener visible el botón de enviar cuando el textarea crece
+   * (el card .about-card es el contenedor scrolleable)
+   */
+  function scrollSubmitIntoView() {
+    if (!contactFormElement) return;
+    const submitBtn = contactFormElement.querySelector('button[type="submit"]');
+    if (!submitBtn) return;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Diferir al siguiente frame: el scroll nativo que revela el caret tras
+    // insertar texto cancela cualquier scroll suave lanzado dentro del input
+    requestAnimationFrame(() => {
+      submitBtn.scrollIntoView({
+        block: 'nearest',
+        behavior: prefersReducedMotion ? 'auto' : 'smooth'
+      });
+    });
+  }
+
+  function resetTextareaHeight() {
+    if (!contactFormElement) return;
+    const textarea = contactFormElement.querySelector('textarea');
+    if (textarea) {
+      textarea.style.height = '';
+      textarea.style.overflowY = '';
+    }
+  }
+
+  /**
    * Inicializar el formulario de contacto
    */
   function initContactForm() {
@@ -163,6 +207,18 @@
 
     // Agregar event listener para el submit
     contactFormElement.addEventListener('submit', handleSubmit);
+
+    // Auto-resize del comentario (guard: initContactForm se re-llama al abrir el overlay)
+    const textarea = contactFormElement.querySelector('textarea');
+    if (textarea && !textarea.dataset.autoResize) {
+      textarea.dataset.autoResize = 'true';
+      textarea.addEventListener('input', () => {
+        const heightChanged = autoResizeTextarea(textarea);
+        if (heightChanged) {
+          scrollSubmitIntoView();
+        }
+      });
+    }
 
     // Validación en tiempo real (opcional)
     const inputs = contactFormElement.querySelectorAll('input, textarea');

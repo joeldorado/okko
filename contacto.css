@@ -47,8 +47,14 @@
 }
 
 .contact-form textarea {
-  resize: vertical;
-  min-height: 80px;
+  /* Arranca como campo de una línea (cursor pegado al subrayado, igual que
+     los inputs) y crece con el contenido vía auto-resize en contacto.js */
+  resize: none;
+  min-height: 0;
+  height: auto;
+  max-height: 200px;
+  overflow-y: hidden;
+  line-height: 1.4;
 }
 
 .contact-error-text {

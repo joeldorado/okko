@@ -459,7 +459,8 @@ body {
   width: 100vw !important;
   height: 100vh !important;
 
-  transform: translate(0, 0) scale(1.05) !important;
+  /* scale(1): un scale residual >1 re-muestrea la imagen y la deja borrosa */
+  transform: translate(0, 0) scale(1) !important;
 
   clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%) !important;
 
@@ -467,15 +468,25 @@ body {
   opacity: 1 !important;
   pointer-events: none !important;
 
+  transition: opacity 1s ease, filter 0.5s ease;
+
   animation: diagonalReveal 5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Estado estable tras la reveal: color pleno, brillo natural, sin animación
+   colgada (permite transicionar filter con .hero-dim). Debe ir ANTES de
+   .theme-sliding para que el slide de tema gane el transform durante el swap. */
+.diagonal.expand.reveal-done {
+  animation: none !important;
+  transform: translate(0, 0) scale(1) !important;
+  filter: grayscale(0%) brightness(1);
 }
 
 /* === Cover slide del cambio de tema (KOI <-> KOA) ===
    El entrante se desliza encima del saliente vía --slideX (tweeneada por GSAP,
    porque el transform de .diagonal.expand lleva !important). */
 .diagonal.expand.theme-sliding {
-  /* translateX ANTES de scale para que 100vw no se multiplique por 1.05 */
-  transform: translate(0, 0) translateX(var(--slideX, 0vw)) scale(1.05) !important;
+  transform: translate(0, 0) translateX(var(--slideX, 0vw)) scale(1) !important;
   transition: none !important;
   animation: none !important;
   will-change: transform;
@@ -486,6 +497,14 @@ body {
   box-shadow: 0 0 80px rgba(0, 0, 0, 0.35);
 }
 
+/* Hero difuminado SOLO cuando hay contenido abierto (Contacto/Nosotros/
+   Proyectos). Limpio = color HD nítido; script.js togglea la clase. */
+.diagonal.expand.hero-dim {
+  animation: none !important;
+  filter: blur(6px) brightness(0.7);
+  transition: filter 0.5s ease;
+}
+
 /* Diagonal inactiva (oculta) */
 .diagonal.inactive {
   opacity: 0 !important;
@@ -493,23 +512,23 @@ body {
   z-index: 0 !important;
 }
 
-/* Animación combinada */
+/* Animación combinada: revela de B&N tenue a color pleno y nítido */
 @keyframes diagonalReveal {
   0% {
     transform: scale(1) translateY(0);
-    filter: grayscale(100%) brightness(0.85) blur(2px);
+    filter: grayscale(100%) brightness(0.9) blur(2px);
   }
-  35% {
+  30% {
     transform: scale(1.12) translateY(-4%);
-    filter: grayscale(100%) brightness(0.85) blur(1px);
+    filter: grayscale(50%) brightness(0.95) blur(1px);
   }
-  70% {
+  65% {
     transform: scale(1.04) translateY(0);
-    filter: grayscale(100%) brightness(0.85) blur(0px);
+    filter: grayscale(0%) brightness(1) blur(0px);
   }
   100% {
     transform: scale(1) translateY(0);
-    filter: grayscale(100%) brightness(0.85) blur(0px);
+    filter: grayscale(0%) brightness(1) blur(0px);
   }
 }
 
@@ -814,6 +833,33 @@ body {
   opacity: 0.7;
 }
 
+/* Sección activa (p.ej. Proyectos abierto) — subrayado fino que crece
+   desde el centro; currentColor sigue el tema del header/footer */
+.nav-menu a.nav-current {
+  position: relative;
+  opacity: 1;
+}
+
+.nav-menu a.nav-current:hover {
+  opacity: 1;
+}
+
+.nav-menu a.nav-current::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.2rem;
+  height: 1px;
+  background: currentColor;
+  animation: navCurrentIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes navCurrentIn {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
 /* Submenu */
 .has-submenu {
   position: relative;
@@ -995,6 +1041,18 @@ body {
   z-index: 0;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+}
+
+/* Respaldo pintado detrás de las slides una vez elegido tema: en los huecos
+   del crossfade (arranque de ciclo, slides sin cargar) se ve una foto real
+   en vez del fondo tratado casi negro/blanco de koi.jpg / koa.jpg.
+   Usa la misma imagen que la primera slide eager: ya está en caché. */
+.diagonal.expand #koiSlides {
+  background: url('./images/slides/KOI/xl/_MG_0582-2.jpg') center / cover no-repeat;
+}
+
+.diagonal.expand #koaSlides {
+  background: url('./images/slides/KOA/xl/_MG_0490.jpg') center / cover no-repeat;
 }
 
 /* Animación de zoom para las imágenes */

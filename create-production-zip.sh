@@ -95,13 +95,16 @@ fi
 
 # Copiar SOLO las imágenes que la página referencia:
 #  - logos y fondos (images/*.png, koi.jpg, koa.jpg)
-#  - slides optimizados md/ (los originales, lg/ y thumb/ de slides NO se usan)
+#  - slides del hero xl/ (1920px) + md/ (usado por el overlay Nosotros)
+#    (los originales, lg/ y thumb/ de slides NO se usan)
 #  - catálogo de proyectos completo (thumb/ + lg/ sí se usan en el modal)
 if [ -d "images" ]; then
     echo "  ✓ images/ (solo assets referenciados)"
     mkdir -p "$TEMP_DIR/images/slides/KOI" "$TEMP_DIR/images/slides/KOA"
     cp images/*.png "$TEMP_DIR/images/" 2>/dev/null
     cp images/koi.jpg images/koa.jpg "$TEMP_DIR/images/" 2>/dev/null
+    rsync -a --exclude='.DS_Store' images/slides/KOI/xl/ "$TEMP_DIR/images/slides/KOI/xl/"
+    rsync -a --exclude='.DS_Store' images/slides/KOA/xl/ "$TEMP_DIR/images/slides/KOA/xl/"
     rsync -a --exclude='.DS_Store' images/slides/KOI/md/ "$TEMP_DIR/images/slides/KOI/md/"
     rsync -a --exclude='.DS_Store' images/slides/KOA/md/ "$TEMP_DIR/images/slides/KOA/md/"
     rsync -a --exclude='.DS_Store' images/proyectos/ "$TEMP_DIR/images/proyectos/"

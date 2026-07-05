@@ -228,53 +228,89 @@
   background: rgba(0, 0, 0, 0.72);
 }
 
-/* Header del modal */
-.projects-modal-header {
-  text-align: center;
-  margin-bottom: 3rem;
+/* =====================================================
+   FILTRO MAYOR — MARCA (KOA = negros · KOI = blancos)
+   Jerárquicamente por encima de las categorías: texto
+   grande espaciado con subrayado fino desde el centro,
+   mismo lenguaje que el nav activo.
+   ===================================================== */
+.projects-brand-filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+  margin: 0 auto 1.8rem;
   animation: fadeInDown 0.8s ease;
 }
 
-.projects-modal-header h1 {
+.brand-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  font-size: clamp(0.95rem, 0.8rem + 0.6vw, 1.25rem);
   font-weight: 500; /* Gotham Medium para títulos */
-  letter-spacing: 4px;
-  margin-bottom: 1rem;
-  transition: color 0.3s ease;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 0.35rem 0.2rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  opacity: 0.55;
+  transition: opacity 0.35s ease, color 0.35s ease;
 }
 
-.projects-modal-header p {
-  font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 400; /* Gotham Book para body text */
-  opacity: 0.8;
-  transition: color 0.3s ease;
+.brand-btn:hover {
+  opacity: 0.85;
 }
 
-/* KOA (negro) → texto blanco */
-.projects-modal.theme-dark .projects-modal-header h1,
-.projects-modal.theme-dark .projects-modal-header p {
-  color: #fff;
+.brand-btn.active {
+  opacity: 1;
 }
 
-/* KOI (blanco) → texto negro */
-.projects-modal.theme-light .projects-modal-header h1,
-.projects-modal.theme-light .projects-modal-header p {
-  color: #000;
+/* Subrayado fino que crece desde el centro (mismo gesto que el nav activo) */
+.brand-btn::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* from-header → KOI → texto negro */
-.projects-modal.from-header .projects-modal-header h1,
-.projects-modal.from-header .projects-modal-header p {
-  color: #000 !important;
+.brand-btn.active::after {
+  transform: scaleX(1);
 }
 
-/* from-footer → KOA → texto blanco */
-.projects-modal.from-footer .projects-modal-header h1,
-.projects-modal.from-footer .projects-modal-header p {
-  color: #fff !important;
+/* Swatch: señal blancos/negros junto a cada marca */
+.brand-swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+  transition: box-shadow 0.3s ease;
 }
+
+.brand-swatch-koa {
+  background: #0c0c0e;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+.brand-swatch-koi {
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+/* Color del texto de marca — brand como fallback, origen manda */
+.projects-modal.theme-light .brand-btn { color: #000; }
+.projects-modal.theme-dark  .brand-btn { color: #fff; }
+.projects-modal.from-header .brand-btn { color: #000 !important; }
+.projects-modal.from-footer .brand-btn { color: #fff !important; }
 
 /* =====================================================
    BARRA DE FILTROS POR CATEGORÍA
@@ -284,7 +320,7 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.5rem;
-  margin: -1.2rem auto 2.4rem;   /* sube un poco bajo el header */
+  margin: 0 auto 2.4rem;
   animation: fadeIn 0.8s ease 0.1s backwards;
 }
 
@@ -446,15 +482,21 @@
   filter: brightness(0.8);
 }
 
+/* Info en hover — centrada sobre la card para que el título se note */
 .project-info {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.35rem;
   padding: 0.8rem;
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(14px);
   transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none; /* el click lo recibe la card */
 }
 
 /* Texto de la card — brand como fallback, origen manda con !important */
@@ -469,11 +511,12 @@
 }
 
 .project-info h3 {
-  margin: 0 0 0.3rem 0;
+  margin: 0;
   font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 0.85rem;
+  font-size: clamp(0.95rem, 0.8rem + 0.5vw, 1.15rem);
   font-weight: 500; /* Gotham Medium para títulos */
-  letter-spacing: 0.5px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .project-info p {
@@ -481,7 +524,115 @@
   font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 0.7rem;
   font-weight: 300; /* Gotham Light para labels/UI */
-  opacity: 0.9;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+/* Candado inline junto al título (cards protegidas) */
+.project-info-lock {
+  font-size: 0.8em;
+  margin-right: 0.35rem;
+  opacity: 0.85;
+}
+
+/* =====================================================
+   CANDADO — badge centrado en cards protegidas
+   ===================================================== */
+.card-lock {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: rgba(12, 12, 14, 0.4);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25), 0 2px 12px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* En hover el badge cede el centro a la info del proyecto */
+.project-card:hover .card-lock {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.85);
+}
+
+/* =====================================================
+   CARD BLOQUEADA POR MARCA — frost glass del color de SU marca
+   El tema activo decide qué marca está activa; la otra queda frosted.
+   Click en la card bloqueada = toggle de tema del sitio (no abre proyecto).
+   ===================================================== */
+.project-card .brand-lock-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3; /* encima de .card-lock y .project-info */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem;
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  pointer-events: none; /* el click lo recibe la card */
+}
+
+/* Frost según la marca de la CARD (no del fondo del modal) */
+.project-card.is-brand-locked[data-brand="koi"] .brand-lock-overlay {
+  background: rgba(255, 255, 255, 0.72);
+  color: #000;
+}
+.project-card.is-brand-locked[data-brand="koa"] .brand-lock-overlay {
+  background: rgba(12, 12, 14, 0.68);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Hint "Disponible en KOA/KOI" — visible siempre (móvil sin hover), énfasis en hover */
+.brand-lock-hint {
+  font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 300;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+  opacity: 0.75;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.brand-lock-hint strong {
+  font-weight: 500;
+  letter-spacing: 3px;
+}
+
+.project-card.is-brand-locked:hover .brand-lock-hint {
+  opacity: 1;
+  transform: scale(1.04);
+}
+
+/* La card bloqueada no muestra hover de proyecto ni el badge candado
+   (evita doble backdrop-filter y que el candado pelee con el frost) */
+.project-card.is-brand-locked .card-overlay,
+.project-card.is-brand-locked .project-info,
+.project-card.is-brand-locked .card-lock {
+  display: none;
+}
+
+.project-card.is-brand-locked:hover img {
+  transform: none;
+  filter: none;
+}
+
+.project-card.is-brand-locked:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
 }
 
 /* =====================================================
@@ -519,22 +670,66 @@
     inset 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
-/* Pantalla de acceso con código */
+/* Pantalla de acceso con código — columna centrada: candado → título → mensaje → input */
 .access-screen {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
   padding: 3rem 2rem;
   width: 100%;
   max-width: 600px;
 }
 
+/* Candado grande centrado, en círculo glass */
+.access-lock {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  margin-bottom: 1.6rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: color 0.3s ease, background 0.3s ease;
+}
+
+.projects-modal.theme-dark .access-lock {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+
+.projects-modal.theme-light .access-lock {
+  color: #000;
+  background: rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+}
+
+/* El origen manda sobre el brand (mismo eje que el resto de controles) */
+.projects-modal.from-header .access-lock {
+  color: #000 !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18) !important;
+}
+
+.projects-modal.from-footer .access-lock {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22) !important;
+}
+
 .access-screen h2 {
   font-family: 'Gotham', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 2rem;
   font-weight: 500; /* Gotham Medium para títulos */
+  letter-spacing: 2px;
   margin-bottom: 1rem;
   transition: color 0.3s ease;
 }
@@ -592,6 +787,24 @@
 
 .projects-modal.theme-light .access-screen input:focus {
   background: rgba(0, 0, 0, 0.2);
+}
+
+/* El ORIGEN manda sobre el brand también en el texto e input del acceso */
+.projects-modal.from-header .access-screen h2,
+.projects-modal.from-header .access-screen p {
+  color: #000 !important;
+}
+.projects-modal.from-header .access-screen input {
+  background: rgba(0, 0, 0, 0.1) !important;
+  color: #000 !important;
+}
+.projects-modal.from-footer .access-screen h2,
+.projects-modal.from-footer .access-screen p {
+  color: #fff !important;
+}
+.projects-modal.from-footer .access-screen input {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
 }
 
 .error-msg {
@@ -790,18 +1003,6 @@
   }
 }
 
-/* Efecto pop para tarjetas deshabilitadas (opacity final de 0.4) */
-@keyframes popInDisabled {
-  0% {
-    opacity: 0;
-    transform: translateY(12px) scale(0.92);
-  }
-  100% {
-    opacity: 0.4;
-    transform: translateY(0) scale(1);
-  }
-}
-
 /* Hidden utility */
 .hidden {
   display: none !important;
@@ -827,11 +1028,6 @@
     grid-template-columns: repeat(auto-fit, minmax(180px, 220px));
     gap: 1rem;
   }
-
-  .projects-modal-header h1 {
-    font-size: 2rem;
-  }
-
 
   .filmstrip-thumb {
     width: 20vw;
@@ -860,15 +1056,6 @@
   .projects-grid {
     grid-template-columns: repeat(auto-fit, minmax(160px, 210px));
     gap: 0.9rem;
-  }
-
-  .projects-modal-header h1 {
-    font-size: 1.8rem;
-    letter-spacing: 2px;
-  }
-
-  .projects-modal-header p {
-    font-size: 1rem;
   }
 
   .peek-carousel .swiper-slide { height: min(58vh, 52.9vw); } /* ~94vw ancho */
@@ -900,20 +1087,16 @@
     max-width: 460px;
   }
 
-  .projects-modal-header h1 {
-    font-size: 1.6rem;
-    letter-spacing: 2px;
-    margin-bottom: 0.8rem;
-  }
-
-  .projects-modal-header p {
-    font-size: 0.95rem;
-  }
-
   .peek-carousel .swiper-slide { height: min(52vh, 55vw); } /* ~98vw ancho */
 
-  .project-info h3 { font-size: 0.75rem; }
+  .project-info h3 { font-size: 0.85rem; letter-spacing: 1.5px; }
   .project-info p  { font-size: 0.65rem; }
+
+  .card-lock {
+    width: 44px;
+    height: 44px;
+    font-size: 0.95rem;
+  }
 }
 
 /* Móviles portrait (hasta 479px) - 2 columnas */
@@ -943,14 +1126,13 @@
     max-width: 340px;
   }
 
-  .projects-modal-header h1 {
-    font-size: 1.4rem;
-    letter-spacing: 1.5px;
-    margin-bottom: 0.6rem;
+  .brand-btn {
+    letter-spacing: 2px;
   }
 
-  .projects-modal-header p {
-    font-size: 0.9rem;
+  .projects-brand-filters {
+    gap: 1.2rem;
+    margin-bottom: 1.2rem;
   }
 
   .peek-carousel .swiper-slide { height: min(48vh, 55vw); } /* ~98vw ancho */
@@ -966,11 +1148,24 @@
     padding: 0.8rem 1rem;
   }
 
+  .access-lock {
+    width: 68px;
+    height: 68px;
+    font-size: 1.4rem;
+  }
+
   .project-info h3 {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
   }
 
   .project-info p {
     font-size: 0.6rem;
+  }
+
+  .card-lock {
+    width: 40px;
+    height: 40px;
+    font-size: 0.9rem;
   }
 }
