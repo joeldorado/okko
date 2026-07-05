@@ -91,6 +91,7 @@ body {
   position: relative;
   width: 100vw;
   height: 100vh;
+  height: 100dvh; /* iOS: evita el salto de la barra de URL */
   background: var(--bg-color);
   overflow: hidden;
 }
@@ -1084,4 +1085,93 @@ body {
 }
 #koaSlides .slide-img:nth-child(7) {
   animation-delay: 36s;
+}
+
+/* ============================================
+   AHORRO DE GPU — pausar slideshows no visibles
+   Las cajas de slides miden 160vmax: animarlas
+   cuando no se ven desperdicia composición.
+   Pausar/reanudar no reinicia el ciclo.
+   ============================================ */
+
+/* Por defecto pausados (pre-click, sin hover) */
+#koiSlides .slide-img,
+#koaSlides .slide-img {
+  animation-play-state: paused;
+}
+
+/* Corren cuando su diagonal se previsualiza (hover) o quedó activa/expandida */
+.stage.top .diagonal-top .slide-img,
+.stage.bottom .diagonal-bottom .slide-img,
+.diagonal.active .slide-img,
+.diagonal.expand .slide-img {
+  animation-play-state: running;
+}
+
+/* El lado oculto tras elegir tema queda pausado hasta volver */
+.diagonal.inactive .slide-img {
+  animation-play-state: paused !important;
+}
+
+/* ============================================
+   TÁCTIL (sin hover) — pista de zonas tocables
+   Los labels KOI/KOA se muestran sutiles con el
+   color del logo actual. Desktop no cambia.
+   ============================================ */
+@media (hover: none) and (pointer: coarse) {
+  .label-top,
+  .label-bottom {
+    opacity: 0.85;
+    color: var(--logo-color);
+  }
+}
+
+/* ============================================
+   ACCESIBILIDAD — foco visible (teclado)
+   Sutil: hereda el color del contexto.
+   ============================================ */
+.nav-menu a:focus-visible,
+.lang-btn:focus-visible,
+.about-close:focus-visible,
+.filter-btn:focus-visible,
+.projects-close-btn:focus-visible,
+.project-detail-close-btn:focus-visible,
+.contact-form input:focus-visible,
+.contact-form textarea:focus-visible,
+.contact-form button:focus-visible,
+.swiper-button-prev:focus-visible,
+.swiper-button-next:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+/* ============================================
+   REDUCED MOTION — slideshow estático
+   (primera imagen fija, sin zoom ni shimmer)
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  #koiSlides .slide-img,
+  #koaSlides .slide-img {
+    animation: none !important;
+  }
+
+  #koiSlides .slide-img:not(:first-child),
+  #koaSlides .slide-img:not(:first-child) {
+    opacity: 0 !important;
+  }
+
+  #koiSlides .slide-img:first-child,
+  #koaSlides .slide-img:first-child {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .lazy-img {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .diagonal.expand {
+    animation: none !important;
+  }
 }

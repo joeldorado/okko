@@ -136,8 +136,6 @@
    */
   function simulateAjaxSubmit(data) {
     return new Promise((resolve, reject) => {
-      console.log('Datos del formulario:', data);
-
       // Simular delay de red
       setTimeout(() => {
         // Simular éxito (95% del tiempo)

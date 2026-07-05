@@ -1,0 +1,26 @@
+# robots.txt — OKKO
+# ------------------------------------------------------------------
+# NOTA: los crawlers solo leen robots.txt en la RAÍZ del dominio.
+# Mientras el sitio viva bajo /okko/ en un dominio compartido, este
+# archivo es la plantilla lista: al tener dominio propio, subirlo a
+# la raíz y actualizar la línea Sitemap.
+# TODO: dominio final
+# ------------------------------------------------------------------
+
+User-agent: *
+Allow: /
+
+# Motores generativos (GEO) — bienvenidos
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://impulsodigitaldorado.com/okko/sitemap.xml

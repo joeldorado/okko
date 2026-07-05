@@ -1,11 +1,18 @@
 let diagonalLocked = false;
 
+// === Rutas base-aware ===
+// En producción el sitio vive bajo /okko/ (ver <base href>); en local el
+// router acepta ambas formas. new URL resuelve contra la base en los dos casos.
+const OKKO_BASE = new URL('.', document.baseURI).pathname;            // "/okko/"
+const okkoPath = (name) => new URL(name, document.baseURI).pathname;  // "/okko/koi"
+
 // === Limpiar URL al cargar/recargar la página ===
 window.addEventListener('DOMContentLoaded', function() {
-    // Si la URL tiene /koi o /koa, limpiarla y volver a /
+    // Si la URL tiene /koi o /koa, limpiarla y volver a la base
     const currentPath = window.location.pathname;
-    if (currentPath === '/koi' || currentPath === '/koa') {
-        history.replaceState(null, '', '/');
+    if (currentPath === okkoPath('koi') || currentPath === okkoPath('koa') ||
+        currentPath === '/koi' || currentPath === '/koa') {
+        history.replaceState(null, '', OKKO_BASE);
     }
 });
 
@@ -223,13 +230,11 @@ function selectDiagonal(side) {
     // Marcar que ya se hizo el primer click
     firstClickDone = true;
 
-    // Cambiar URL del navegador según el proyecto seleccionado
+    // Cambiar URL del navegador según el proyecto seleccionado (base-aware)
     if (side === "top") {
-        // KOI - cambiar URL a /koi
-        history.pushState({ project: 'koi' }, '', '/koi');
+        history.pushState({ project: 'koi' }, '', okkoPath('koi'));
     } else {
-        // KOA - cambiar URL a /koa
-        history.pushState({ project: 'koa' }, '', '/koa');
+        history.pushState({ project: 'koa' }, '', okkoPath('koa'));
     }
 
     // Apagar interacciones
@@ -570,8 +575,8 @@ mainHeader.addEventListener('click', function(e) {
             showSlides('koi');
             // Actualizar localStorage
             localStorage.setItem('themeMode', 'light');
-            // Actualizar URL
-            history.pushState({ project: 'koi' }, '', '/koi');
+            // Actualizar URL (base-aware)
+            history.pushState({ project: 'koi' }, '', okkoPath('koi'));
         }
 
         // Si Proyectos está abierto, re-tematizar deslizando (sin cerrar) cuando el
@@ -612,8 +617,8 @@ mainFooter.addEventListener('click', function(e) {
             showSlides('koa');
             // Actualizar localStorage
             localStorage.setItem('themeMode', 'dark');
-            // Actualizar URL
-            history.pushState({ project: 'koa' }, '', '/koa');
+            // Actualizar URL (base-aware)
+            history.pushState({ project: 'koa' }, '', okkoPath('koa'));
         }
 
         // Si Proyectos está abierto, re-tematizar deslizando (sin cerrar) cuando el
@@ -678,8 +683,8 @@ window.addEventListener('popstate', function(event) {
             updateHeaderFooterTheme('koa');
         }
     } else {
-        // Si no hay estado (volvió a la página inicial), recargar la página
-        window.location.href = '/';
+        // Si no hay estado (volvió a la página inicial), recargar en la base
+        window.location.href = OKKO_BASE;
     }
 });
 

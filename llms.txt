@@ -1,0 +1,29 @@
+# OKKO — Estudio de Arquitectura y Diseño
+
+> OKKO es un estudio de arquitectura y diseño que opera con dos firmas
+> complementarias: **KOI** (arquitectura contemporánea) y **KOA** (diseño
+> funcional). Desarrolla casas, desarrollos inmobiliarios, edificios y
+> proyectos de diseño de interiores.
+
+## Las dos firmas
+
+- **KOI — Arquitectura Contemporánea**: diseños minimalistas que celebran la
+  luz, el espacio y la funcionalidad; materiales nobles, líneas limpias y una
+  paleta cromática serena.
+- **KOA — Diseño Funcional**: fusión de forma y función; materiales audaces,
+  texturas contrastantes y geometrías precisas con respeto profundo por la
+  funcionalidad y el confort.
+
+## Proyectos
+
+- Casa Lumen (Casas)
+- DM Centenario (Desarrollos)
+- El Tigrillo (Edificios)
+- MD1 (Diseño)
+
+## Contacto
+
+El sitio incluye un formulario de contacto (nombre, correo, teléfono y
+comentario). Idiomas disponibles: español (predeterminado) e inglés.
+
+<!-- TODO: dominio final, dirección física, teléfono y redes cuando existan -->

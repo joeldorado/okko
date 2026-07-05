@@ -67,6 +67,21 @@ if [ -f "favicon.ico" ]; then
     cp favicon.ico "$TEMP_DIR/"
 fi
 
+# Copiar archivos SEO (robots.txt es plantilla: solo aplica en dominio propio)
+for seo_file in robots.txt sitemap.xml llms.txt; do
+    if [ -f "$seo_file" ]; then
+        echo "  ✓ $seo_file"
+        cp "$seo_file" "$TEMP_DIR/"
+    fi
+done
+
+# Copiar fuentes (styles.css las referencia — sin esto Gotham no carga en prod)
+if [ -d "fonts" ]; then
+    echo "  ✓ fonts/ (6 pesos Gotham en uso)"
+    mkdir -p "$TEMP_DIR/fonts"
+    rsync -a --exclude='.DS_Store' fonts/ "$TEMP_DIR/fonts/"
+fi
+
 # Copiar PHP (si existe)
 if [ -f "config.php" ]; then
     echo "  ✓ config.php"
@@ -78,11 +93,18 @@ if [ -f "send-email.php" ]; then
     cp send-email.php "$TEMP_DIR/"
 fi
 
-# Copiar carpeta images (excluyendo backups)
+# Copiar SOLO las imágenes que la página referencia:
+#  - logos y fondos (images/*.png, koi.jpg, koa.jpg)
+#  - slides optimizados md/ (los originales, lg/ y thumb/ de slides NO se usan)
+#  - catálogo de proyectos completo (thumb/ + lg/ sí se usan en el modal)
 if [ -d "images" ]; then
-    echo "  ✓ images/ (carpeta completa)"
-    mkdir -p "$TEMP_DIR/images"
-    rsync -av --exclude='images-backup' --exclude='.DS_Store' images/ "$TEMP_DIR/images/"
+    echo "  ✓ images/ (solo assets referenciados)"
+    mkdir -p "$TEMP_DIR/images/slides/KOI" "$TEMP_DIR/images/slides/KOA"
+    cp images/*.png "$TEMP_DIR/images/" 2>/dev/null
+    cp images/koi.jpg images/koa.jpg "$TEMP_DIR/images/" 2>/dev/null
+    rsync -a --exclude='.DS_Store' images/slides/KOI/md/ "$TEMP_DIR/images/slides/KOI/md/"
+    rsync -a --exclude='.DS_Store' images/slides/KOA/md/ "$TEMP_DIR/images/slides/KOA/md/"
+    rsync -a --exclude='.DS_Store' images/proyectos/ "$TEMP_DIR/images/proyectos/"
 fi
 
 # Copiar carpeta music (si existe)
@@ -128,7 +150,8 @@ echo "   5. Extrae el contenido (opción Extract)"
 echo "   6. Elimina el archivo okko.zip después de extraer"
 echo ""
 echo -e "${RED}⚠️  IMPORTANTE:${NC}"
-echo "   - Asegúrate de optimizar las imágenes primero: ./optimize-images.sh"
 echo "   - Verifica que el archivo .htaccess se haya subido (puede estar oculto)"
+echo "   - El .env NO va en el zip (contiene el código de acceso);"
+echo "     si se activa el candado de proyectos, subirlo aparte junto a config.php"
 echo "   - Prueba el sitio después de subir: https://impulsodigitaldorado.com/okko/"
 echo ""

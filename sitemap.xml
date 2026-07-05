@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sitemap OKKO — sitio one-page: una sola URL canónica.
+     /koi y /koa son estados de la misma página (no se listan como duplicados).
+     TODO: dominio final — actualizar <loc> y reenviar en Search Console. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://impulsodigitaldorado.com/okko/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

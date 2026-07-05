@@ -45,6 +45,7 @@ if (file_exists($file) && $file !== __FILE__) {
         'woff' => 'font/woff',
         'woff2' => 'font/woff2',
         'ttf' => 'font/ttf',
+        'otf' => 'font/otf',
         'mp3' => 'audio/mpeg',
         'mp4' => 'video/mp4',
         'pdf' => 'application/pdf',
